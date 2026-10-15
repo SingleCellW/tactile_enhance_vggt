@@ -175,7 +175,8 @@ def run(args):
     steps = args.steps or max(1000, round(scaled / 1000) * 1000)
     config.update({"steps": steps, "cache": str(Path(args.cache).resolve()),
                    "train_observations": len(train), "val_observations": len(val),
-                   "budget_rule": "reference_steps * train_observations/reference_frames * reference_batch/batch",
+                   "budget_rule": "explicit --steps override" if args.steps is not None else
+                                  "reference_steps * train_observations/reference_frames * reference_batch/batch",
                    "argv": sys.argv, "torch": torch.__version__,
                    "lerobot_source": str(ROOT / "lerobot"), "frozen_vggt": True,
                    "sampler_version": 1,

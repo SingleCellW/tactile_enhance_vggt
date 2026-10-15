@@ -38,10 +38,13 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--max-frames", type=int, default=100, help="0 for all frames; otherwise spread a probe across all episodes")
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--velocity-dt", type=float, help="Fixed physical seconds between recorded qpos frames; omission retains historical wall-timestamp proxy")
     parser.add_argument("--num-shards", type=int, default=1)
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--merge-inputs", type=Path, nargs="+")
     args = parser.parse_args()
+    if args.velocity_dt is not None and (not np.isfinite(args.velocity_dt) or args.velocity_dt <= 0):
+        raise ValueError("velocity-dt must be finite and positive")
     if args.merge_inputs:
         merge_readouts(args)
         return
@@ -135,9 +138,11 @@ def main():
             data.qpos[:] = qpos
             data.qvel[:] = 0
             dt = None
+            wall_dt = None
             if local_frame:
                 previous = np.load(raw / rows[local_frame - 1]["prioception_path"], allow_pickle=False)
-                dt = float(timestamps[local_frame] - timestamps[local_frame - 1])
+                wall_dt = float(timestamps[local_frame] - timestamps[local_frame - 1])
+                dt = wall_dt if args.velocity_dt is None else args.velocity_dt
                 mujoco.mj_differentiatePos(model, data.qvel, dt, previous, qpos)
             mujoco.mj_forward(model, data)
             qpos_before = data.qpos.copy()
@@ -169,7 +174,7 @@ def main():
             forces[output_index], anchors[output_index] = observed, fk
             contact[output_index] = observed > 5e-4
             diagnostics.append({"global_index": int(global_index), "episode": int(ep), "frame": local_frame,
-                                "dt_s": dt, "fk_native_anchor_max_m": error, "rigid_max_m": rigid_error,
+                                "dt_s": dt, "wall_dt_s": wall_dt, "fk_native_anchor_max_m": error, "rigid_max_m": rigid_error,
                                 "object_vertices_max_m": mesh_error, "peak_force_proxy": float(observed.max()),
                                 "active_sensors": int((observed > 5e-4).sum())})
             if len(diagnostics) % 100 == 0:
@@ -187,7 +192,9 @@ def main():
               "native_fk_anchor_max_m": max(row["fk_native_anchor_max_m"] for row in diagnostics),
               "object_vertices_max_m": mesh_rotation_max, "cvel_vs_body_velocity_max_abs": velocity_convention_max,
               "body_origin_velocity_jacobian_max_abs": velocity_origin_jacobian_max,
-              "velocity": "causal mj_differentiatePos(prev full qpos29,current qpos29,actual dt), first frame zero; mj_objectVelocity(body,world orientation), COM velocity shifted to xpos by omega cross (xpos-xipos); verified against xpos Jacobian at every body/frame",
+              "velocity_dt": args.velocity_dt,
+              "velocity_time_basis": "original wall timestamps (proxy)" if args.velocity_dt is None else f"fixed {args.velocity_dt}s physical state-transition interval; original wall timestamp differences retained separately",
+              "velocity": "causal mj_differentiatePos(prev full qpos29,current qpos29,reported dt_s), first frame zero; mj_objectVelocity(body,world orientation), COM velocity shifted to xpos by omega cross (xpos-xipos); verified against xpos Jacobian at every body/frame",
               "object_quaternion": "MuJoCo WXYZ converted to native object adapter XYZW; transformed mesh verified against data.xmat",
               "force_law": "unchanged frozen native cal_force/cal_vel; continuous simulator proxy, not calibrated Newtons; legacy cross(r,omega) retained",
               "sensor_order": "32 fingertip taxels then 12 FSRs using frozen continuous readout weights",
@@ -209,6 +216,8 @@ def merge_readouts(args):
     for path, report in zip(args.merge_inputs, reports):
         if report["source_readouts_sha256"] != source_sha or report["repaired_readouts_sha256"] != sha(path):
             raise ValueError("Shard/source/report checksum mismatch")
+        if report.get("velocity_dt") != reports[0].get("velocity_dt"):
+            raise ValueError("Cannot merge different velocity time bases")
     keys = ("force44", "contact44", "anchors_world", "state22", "episode_index", "frame_index")
     pieces = []
     for path in args.merge_inputs:

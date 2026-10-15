@@ -65,6 +65,11 @@ def prepare(args):
     if train_count + val_count != len(observation_frames):
         raise ValueError("Some observations are missing from the shared train/validation split")
     base = json.loads(Path(args.config).read_text())
+    if base.get("experiment") == "v2_physics_aligned_current_command":
+        action_repair = manifest.get("configuration", {}).get("action_label_repair", {})
+        if (action_repair.get("action_target_offset_frames") != 0
+                or native_report.get("velocity_dt") != .01):
+            raise ValueError("V2 requires verified current-command labels and native velocity_dt=0.01")
     if args.batch_size is not None:
         base["batch_size"] = args.batch_size
     if args.amp is not None:
@@ -123,6 +128,8 @@ def prepare(args):
         "native_tactile_report_complete": True,
         "native_tactile_report_sha256": hashlib.sha256(json.dumps(native_report, sort_keys=True).encode()).hexdigest(),
         "rgb_alignment": rgb_alignment,
+        "action_label_repair": manifest.get("configuration", {}).get("action_label_repair"),
+        "native_velocity_dt": native_report.get("velocity_dt"),
         "alignment_report": alignment, "numpy_version": np.__version__,
         "steps_per_run": steps, "batch_size": batch_size,
         "train_observations": train_count, "val_observations": val_count,

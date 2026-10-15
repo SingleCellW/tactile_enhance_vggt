@@ -156,9 +156,9 @@ def repair(source, readouts, report, destination, rgb_lag=0, rgb_alignment_repor
     manifest["normalization"] = training_statistics(arrays["state"], arrays["action"], force,
                                                     arrays["episode_index"], manifest["split"]["train"])
     manifest["tactile_semantics"] = (
-        "Native tactile model recomputed at complete recorded qpos29; causal timestamp-based "
-        "MuJoCo generalized velocity; synchronized mj_forward geometry/velocity; "
-        "32 corrected-order taxels then 12 FSRs. See native_tactile_report.json.")
+        "Native tactile model recomputed at complete recorded qpos29; synchronized "
+        "mj_forward geometry/velocity; 32 corrected-order taxels then 12 FSRs. "
+        "Velocity basis: " + audit.get("velocity", "see native_tactile_report.json"))
     manifest["historical_source_tactile_superseded"] = True
     if rgb_lag:
         manifest["action_semantics"] = (

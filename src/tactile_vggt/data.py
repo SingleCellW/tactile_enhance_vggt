@@ -46,7 +46,9 @@ class CachedTactileDataset:
     """Torch-compatible dataset; cache arrays stay memory mapped and read-only.
 
     Observation stride affects sample selection only. Each action chunk retains
-    the source dataset's complete ~20 Hz command stream and episode boundaries.
+    the source dataset's complete command stream and episode boundaries.
+    Recording FPS is wall time; simulated command spacing is recorded in the
+    audited cache manifest (v2: one 0.01-second physics step per command).
     """
     def __init__(self, cache_dir, split="train", horizon=16, normalize=True):
         self.cache_dir = Path(cache_dir)

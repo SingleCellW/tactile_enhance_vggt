@@ -98,3 +98,19 @@ discrepancy 68.34 nm and velocity/Jacobian discrepancy 8.88e−16. All output
 arrays were finite and their state/episode/frame rows exactly matched the
 source. See `native_tactile_repair_result.json` for checksums and measured
 output distributions.
+
+## Physical-cadence data version
+
+The initial version above used recorded wall timestamp differences for its
+velocity proxy. Subsequent adjacent-state replay checks established that each
+recorded state transition advances one `.01`-second physics step, despite the
+approximately 20 Hz recording clock. See `physics_transition_audit.json`.
+
+For the new data version, add `--velocity-dt .01` to probe and shard commands
+and use the separate output directory `artifacts/native_physics_dt01`.
+Reports record the fixed physical interval and retain each original wall
+timestamp difference as `wall_dt_s`. This changes the velocity supplied to the
+same native force law; it does not modify the inherited force law or its units.
+The new version also requires the independently audited raw action labels;
+`repair_action_labels.py` performs that operation separately from sensor
+reconstruction. Existing v1 readouts and caches remain unchanged.
