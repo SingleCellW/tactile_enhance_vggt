@@ -7,4 +7,6 @@ outputs/
 logs/
 weights/
 vendor/
+artifacts/
+inputs/
 *.egg-info/

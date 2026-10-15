@@ -1,0 +1,734 @@
+{
+  "verified": true,
+  "rgb_lag_frames": 1,
+  "interpretation": "RGB at recorded index t depicts full recorded qpos[t-1]. Reindex visual observations to t-1 within the same episode; discard each episode's first RGB observation. No future target is used to repair sensor geometry.",
+  "scope": "Sampled pixel/render evidence across four episodes, not every source frame or a recovered original recorder implementation.",
+  "evidence": {
+    "mujoco_version": "3.4.0",
+    "raw_png_episode": "/home/wukf/projects/data/Mujoco_picklift/0211_204543",
+    "source": "/home/wukf/projects/tactile_enhance/Lerobot_datasets/Mujoco_Picklift_rc_260407_ud_T_R_D_NPC",
+    "qpos_offsets": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "summary": {
+      "original_png": {
+        "comparisons": 20,
+        "all_best_offset_minus_one": true,
+        "median_offset_mae_0_to_255": [
+          1.0161067708333333,
+          0.0011534288194444443,
+          1.1112169053819443,
+          1.8806510416666666,
+          2.552678493923611
+        ]
+      },
+      "lerobot_video": {
+        "comparisons": 18,
+        "all_best_offset_minus_one": true,
+        "median_offset_mae_0_to_255": [
+          3.2365971779336737,
+          2.5842334980867347,
+          3.470493861607143,
+          4.4775689572704085,
+          5.428362165178571
+        ]
+      }
+    },
+    "comparisons": [
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 25,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          0.9997504340277777,
+          0.0010828993055555555,
+          1.100439453125,
+          1.8902669270833334,
+          2.6897688802083333
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 25,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          1.0579774305555556,
+          0.0019444444444444444,
+          1.1219943576388889,
+          1.9179134114583334,
+          2.6692469618055554
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 75,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          1.2870833333333334,
+          0.0008875868055555555,
+          1.1840180121527777,
+          1.9583148871527778,
+          2.5203092447916666
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 75,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          1.2210481770833332,
+          0.0013009982638888889,
+          1.1283463541666667,
+          1.8783680555555555,
+          2.4528743489583333
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 125,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          0.3021050347222222,
+          0.0007606336805555555,
+          0.29705186631944447,
+          0.4415559895833333,
+          0.5801681857638888
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 125,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          0.3816384548611111,
+          0.0010731336805555555,
+          0.37697916666666664,
+          0.6079036458333333,
+          0.8109342447916666
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 150,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          0.24785481770833334,
+          0.0007465277777777778,
+          0.26074869791666666,
+          0.4238226996527778,
+          0.5699468315972223
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 150,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          0.3515549045138889,
+          0.001164279513888889,
+          0.35524956597222224,
+          0.6116167534722222,
+          0.8436404079861111
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 175,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          0.7553678385416667,
+          0.0007606336805555555,
+          0.8025423177083333,
+          1.3968229166666666,
+          1.9474207899305556
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 175,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          0.7847211371527778,
+          0.0011751302083333334,
+          0.8341362847222222,
+          1.4874500868055556,
+          2.0840104166666666
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 225,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          1.0617502170138888,
+          0.0009516059027777778,
+          1.1845496961805555,
+          2.0083984375,
+          2.804929470486111
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 225,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          1.1428624131944445,
+          0.001296657986111111,
+          1.2529741753472223,
+          2.097412109375,
+          2.921547309027778
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 275,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          1.1385340711805556,
+          0.0010101996527777778,
+          1.4271712239583334,
+          2.2654817708333335,
+          3.223413628472222
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 275,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          0.9525238715277777,
+          0.00169921875,
+          1.1303656684027779,
+          1.8829340277777777,
+          2.700580512152778
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 325,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          1.3650108506944445,
+          0.001240234375,
+          1.3257063802083333,
+          2.4041145833333335,
+          3.349828559027778
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 325,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          0.4738454861111111,
+          0.0020540364583333335,
+          0.428564453125,
+          0.8001171875,
+          1.116298828125
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 375,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          1.8039680989583333,
+          0.001142578125,
+          1.9789615885416667,
+          3.625529513888889,
+          5.1148828125
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 375,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          1.0324631076388888,
+          0.001828342013888889,
+          1.042578125,
+          1.8486686197916666,
+          2.5850477430555556
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 425,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          0.7703059895833333,
+          0.0009168836805555556,
+          0.7515375434027778,
+          1.2619422743055555,
+          1.6864246961805556
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "original_png",
+        "episode": "0211_204543",
+        "frame": 425,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          1.5885872395833334,
+          0.0012890625,
+          1.478525390625,
+          2.4930826822916665,
+          3.263064236111111
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 75,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.2453563456632653,
+          2.6564758715986394,
+          3.698036245748299,
+          4.889243197278912,
+          5.8093178677721085
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 150,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.3133237670068025,
+          2.3991682610544216,
+          3.242831898384354,
+          4.3230694621598635,
+          5.370362988945578
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 225,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.053996598639456,
+          2.5802043473639458,
+          3.3722696109693877,
+          4.285182823129252,
+          5.263067336309524
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 75,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.2248219600340136,
+          2.6299359587585034,
+          3.4754331420068025,
+          4.354160023384353,
+          5.0157578656462585
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 150,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          4.1618768601190474,
+          2.408236341411565,
+          3.856890412414966,
+          5.36989131590136,
+          6.629105548469388
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 225,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.4056122448979593,
+          2.686337425595238,
+          3.7023809523809526,
+          4.818007281037415,
+          5.88254012542517
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 75,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.022480867346939,
+          2.5882626488095237,
+          3.3212159863945576,
+          4.186729379251701,
+          5.0753481079931975
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 150,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.1820325786564627,
+          2.39734800170068,
+          2.9833386479591835,
+          3.880866018282313,
+          4.840966464710885
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 225,
+        "camera": "left_cam",
+        "offset_mae_0_to_255": [
+          3.55582350127551,
+          2.720424107142857,
+          4.020952912414966,
+          5.765252976190476,
+          7.548774978741497
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 75,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.2479737988945576,
+          2.68180006377551,
+          3.677089976615646,
+          4.768833705357143,
+          5.543168048469388
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 150,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.227838010204082,
+          2.3768269026360542,
+          3.0856916985544216,
+          4.020155718537415,
+          4.9230242878401365
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204422",
+        "frame": 225,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          2.9776586415816326,
+          2.566857993197279,
+          3.32492293792517,
+          4.1885894982993195,
+          4.959522480867347
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 75,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.166108630952381,
+          2.646039275085034,
+          3.3558739902210886,
+          4.022281568877551,
+          4.573268760629252
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 150,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.636818399234694,
+          2.393362032312925,
+          3.465554581207483,
+          4.658395780187075,
+          5.741224224064626
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_204653",
+        "frame": 225,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.2898264774659864,
+          2.6611062393707483,
+          3.715900031887755,
+          4.9718125531462585,
+          6.124794058248299
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 75,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.364005367772109,
+          2.6937579719387754,
+          3.6029509460034013,
+          4.600977891156463,
+          5.486361341411564
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 150,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          2.937466783588435,
+          2.3574484481292517,
+          2.745542357568027,
+          3.4283056972789114,
+          4.14573368409864
+        ],
+        "best_qpos_offset": -1
+      },
+      {
+        "source_type": "lerobot_video",
+        "episode": "0211_211654",
+        "frame": 225,
+        "camera": "right_cam",
+        "offset_mae_0_to_255": [
+          3.1550276360544216,
+          2.559676605017007,
+          3.4761705463435373,
+          4.670599489795919,
+          5.805929793792517
+        ],
+        "best_qpos_offset": -1
+      }
+    ],
+    "scene_root": "/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/eval/assets/picklift",
+    "scene_sha256": "3a4de0a3b9576425ae96e3d0f725644aade3658bd1ebe13efe4d52f8331a417e",
+    "asset_sha256": {
+      "cube.xml": "36d5defa6711bc29c003e6a2c928f845895cccecec18f22f1a761482bdc24629",
+      "meshes/dex_cube.obj": "2b88294ed0228f1df0c6d070bdecaef10c214d9cea8e5edf393d3eaddc4b014d",
+      "official_hand/base.obj": "3d7194a6a33626ffcdfce78a0ca854e67b6b49f2e09a3bd62656f94515fdfbec",
+      "official_hand/distal.obj": "6bfa2afb2a06557ce0c54b03baec13522bfe561aabb576bd4701d4704f93ec0f",
+      "official_hand/medial.obj": "472e054348c5a0e987829e721d5ba8486ddd47d867e416bb45d8d2a2ff917acf",
+      "official_hand/palm_right.obj": "839b2e58e69ce57e0feaa2f565f8124101a2ed81d99fb2c5d00372b245634ab8",
+      "official_hand/proximal.obj": "3fff19dc1f0100bb5f34eaf8a40fcf3db40f96fd7179bb7336e538b21ff8e067",
+      "official_hand/thumb_base.obj": "d28876cc3b674323aa7d8a628a4240cda2757c61263b05e86a66280035a2689d",
+      "official_hand/thumb_distal.obj": "4695d72a70285e8a0132ed4de49876cf99c813182e3a24b172b53631224890de",
+      "official_hand/thumb_proximal.obj": "5b402876601f2b0b36631e6a54ad20588f88e74f52320b6c902a8bc694578689",
+      "official_hand/thumb_tip.obj": "7987f2599efaa73a6d7ccf0dd26d9f9e06949c7c66c268c9f8989aac345822e0",
+      "official_hand/tip.obj": "eb2f5157e29ace1e45c4bf2bd0cacb03cc276458b1c4a21c217e73d0bc4e95c7",
+      "reorientation_cube_textures/dex_cube.png": "0ec662a344912792302efc5faf89564b4bcd2c71f3437a4686b45b732184f647",
+      "reorientation_cube_textures/fileback.png": "6c3d1c75caa2755b8f776828412172a41e30b986137a30c1dcc531efd04e6e56",
+      "reorientation_cube_textures/filedown.png": "74425e89f13641d550b0d13086066960b9125aff41fd666fb288c94d3b55477d",
+      "reorientation_cube_textures/filefront.png": "7e6e5024617d0273f2bfeb9b6d5b89770fb95e054450d29458254709e12b0b27",
+      "reorientation_cube_textures/fileleft.png": "6446d6f70fc5bb3f1923bb3f985a582f939d4871d8d9d16821166f5f4b11733e",
+      "reorientation_cube_textures/fileright.png": "21eec1134ce31af3906493654413cf8f76f7333e4245bb3a801c9daab7073a76",
+      "reorientation_cube_textures/fileup.png": "d573fdd4a3e37b34e022305c0107cc0774530eae4395df9fb743d1abae7ce1f9",
+      "reorientation_cube_textures/grayback.png": "a91d72998be64fabb42c0b9bde97fd7b824ee391127062e77eaddd7aa6b197b1",
+      "reorientation_cube_textures/graydown.png": "26c2e32b6b3a9a0188bb0746a671641e93f08331eb642b0e083aa0aaf95a40ea",
+      "reorientation_cube_textures/grayfront.png": "fb509a17a9a72c8cd77dac5e571e1bdc41d014f9b7c252d7a42acf47693e575b",
+      "reorientation_cube_textures/grayleft.png": "b7d75257afb0bd40b0c275a2b5fc06b18d85cdb9a24fa105dee3c3845d0128f9",
+      "reorientation_cube_textures/grayright.png": "bdb03ebf5a157200523c374a8dd2e4c1e86bd9352bea6d6a746a15b62bfe7ca4",
+      "reorientation_cube_textures/grayup.png": "b9f17448dbf9b0b8f59b0a7682618a1324f902f9fa9e0dc6adb1675b2b550198",
+      "scene.xml": "3a4de0a3b9576425ae96e3d0f725644aade3658bd1ebe13efe4d52f8331a417e",
+      "xarm6/visual/link1.obj": "88cca9624d1fbc4b3a461c9d30dce21184538dda783fc45eca518f41e80cfca4",
+      "xarm6/visual/link2.obj": "8cc79d306e135852ce0cc84567a97dc27715b580412ab541bcd58ebf213914a0",
+      "xarm6/visual/link3.obj": "4835c5c28fbf4808817eca2e1eaee37b248ef0de8aa682abec62f2a8226c2d4f",
+      "xarm6/visual/link4.obj": "874e9d4f55e31492b897cb09d283addb89bfcbd66e0a092736304809a526f2e4",
+      "xarm6/visual/link5.obj": "96c78eddc574f12c51900d542d1aae06705088f8c3a57fed16c01324ea38ce22",
+      "xarm6/visual/link6.obj": "345cb85ad5d60d3e9a951b8fb61f4644b21935c8860a4038ae5f672c83b680f7",
+      "xarm6/visual/link_base.obj": "413a8680ab73750620a88ee10e226cdcb1f1d743acb4e0be88de6792e8849837",
+      "xarm_with_leaphand.xml": "0b77b3169299d27169870ac897a2b724e81fdf2407fdbd552976eb2d1cdbb289"
+    },
+    "input_sha256": {
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000023.npy": "44c24d1514015d16a790e934c1b6792000cd9b906b0c575aac5a98c520b474f9",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000024.npy": "da5692eb71b76a4f97f7db79f489bf7fd32ac685af9492bdf7498f8e99217a1c",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000025.npy": "d1414e692e2486568ecfe9a1db64aaad555330f436917d576cb07b0b1d48b53d",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000026.npy": "90400757f7a244d17825af2b94a215c5cb8c1bc7e5f58f8421ba21131645b6b3",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000027.npy": "c7810ccc3b244161a908a65102b752cc3cfe74399ea0089693ebadcda64a1970",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000025.png": "563360e953edfae677c20dd42f7799bacd00c12bd4354e1a3f975cfb0e0074e7",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000025.png": "a32438218dd76e7eba3ca378c1689dc509984944143849010ee8561ed2d49e94",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000073.npy": "d32eb1ca53bf1a55004e181e0ff82833264db9b50b4a823955d2c7cb9bc2f501",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000074.npy": "1eff6bf989b6a8092cbd83f15a3ae4b628011ae2e4fa72cbbe28823121b2fcff",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000075.npy": "e8d24b15cd231d3afee0e6d3daa382e0809ff4f95d53c92d849dfad7ff02c091",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000076.npy": "33860e7b07c254d6577f509bbd261e1820543b4f166c6df2b5815099aba147fb",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000077.npy": "05b18a001a42892339ea7873ea04247a5c6d1f8770d69d604e43b3010705e8b7",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000075.png": "415229dca87bf105a773d0e04bd7b8f0183487735c243aaf4d90c3001ad16dd1",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000075.png": "a1e3ed09631edca98935cc0cb18a072bec039d39c44b54ffe981c7f749e4dcb7",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000123.npy": "492ba7619edb0b119c79cb26d96edc26343f6ab2f650e2c171fed4a2aff60a69",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000124.npy": "d9c5986c5993cbcc615107ec8c58193a7b160edefe508efd990941a2993b14fe",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000125.npy": "6c3be571d21cd9d43855dd9272b86343376a1e5411c143b984c5e39bf04e3635",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000126.npy": "bb09a221dbef3adffc77f5c46a96a504af7d6892143e25df7b4b731c36dc578f",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000127.npy": "b6d44b7709e948762b18400cd7ff89a58434dd1826ff76237c4768da07eb4cc2",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000125.png": "394a75e184af9034958b90cdd2e100a65addbbf3c5d53c18c1562a64f603023d",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000125.png": "0b4a13ed4bb7cce4b3e23b79505fe74e39de85b36ebda40e15484ced7476109b",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000148.npy": "9574ac2f8bb650284caa3e7c66e3db5d74fe9cf9dda44f5f8abb121a37e4ca74",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000149.npy": "d21dc58b3b159c7e7c3d8a02a000deee5b50bf382d82d3e1555b92f3c9a8a4e0",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000150.npy": "a61410d05f5eccce215f4bb5f31e4f2a976b4748880664afb188b9dfc94ec71a",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000151.npy": "05f0d1a94f253be0638482984fcd2c81eda83abc34cab9b2af28621ac84c7e0d",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000152.npy": "44ce3ba659a5105e7f4d7fc8be1c8f9b3db48ba1e6b8ff91e6c6e95f650b3412",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000150.png": "ed31b6769aaa37ccec165e2175182328afa61d3945de7b9b7e0fce3a4918e5bd",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000150.png": "dab7356224c9568ac331ab860080bf7f725047045823d6f1de954c5c32fc0be2",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000173.npy": "c10428350a9c0530131dce49d1a59f0688a5c640d35517226eed6d49a5f59a29",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000174.npy": "6138ccaaea91f6c34994607c0967994d43f2734509101f0b534651cb6b12efc6",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000175.npy": "af0fa65eb2f4a97d79c4d31d4965a3f6f68b3f51a07928d705578ec7bdca80a5",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000176.npy": "95b660ae9c42dc16b96426bbe11b6c997422638020bd9bbb35547b53963ccf7d",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000177.npy": "0ffcc23b846721b3bd82549da49ae082c76c487151034d3cdcb6259be5bf9182",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000175.png": "0934c6c79116dbe285e2d0dee3ed7b24792a47bb2cc72a3a15cc9d071b90e0e5",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000175.png": "8067a99af6b7be4760e852e567b0428d0dffb97a3433029e63b03e42ff5e3cd3",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000223.npy": "58c8a934dbc0b2833b76f7ab4c5f91635126a122be8e739953958e5cd435f2de",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000224.npy": "47ace6131cbfcba966064df2182f4ce6b99a3571fa02db37843f598d96db7826",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000225.npy": "99196afe3182d36286ab69c3ee8ca29d8d5a0f753724820a9a56aeddafc3cf4e",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000226.npy": "5a296146a8ee060174eeaa406057910cbbd1d5d5b25f965c8b874e964281eea9",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000227.npy": "39b7f50d7cd2af54f31104767e63c4b0e1fe88f9b5df0f9b79d731c507180348",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000225.png": "95b0767f9ffc74a00b5b1e68d41e8ef2b9c55b93881bf157ba8a7d943f37d3ea",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000225.png": "a7c4221daff35c3e25709da6ec20c4150bcd4604d0fa643fa7ddb7cbe1feae94",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000273.npy": "7296e01448517d82ed1d0abdf61e485b6d63a73a6ad4facd171f6ade6584eeec",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000274.npy": "ff0998533b9343fa40ffc7922e67bc32726ba73894f688f010289420d424ddfb",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000275.npy": "635132829c5eb7ded3218b8f755c162c3d2d9b5ee7a9c13f21bb5c1eeba3bfc6",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000276.npy": "e19f051c422c39aa52944568c929c7771f79b0aa453840e1582ed15d133b7a42",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000277.npy": "61fe2b6612ebc3512cea9a0d21a9adf2f13b744a944f2f9690c50328ff85a273",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000275.png": "0f7e4bbce3445ebbafb0a2c3dfc74bba558bcbe8cf102f39a16e313667d32d91",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000275.png": "60d260ba9261f799870b85f9cc9c7b7478c26ede733fd0c8e3ef8c1646300078",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000323.npy": "3b808740ea136578ed6a13a432426db6bada6711870e5668ec0399cb66f7d492",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000324.npy": "07bd36b2bc6d2a6fd035db103a3969b4c0519900029c90df4980b3993f475ac2",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000325.npy": "8b7b2f75498960e973ede7125179d723b76503414ff6ad91905042b2ede7f6d1",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000326.npy": "f423cfdbd30fde0083a51fd3fa964eaaccff8f9dc80520aad9a60b02422c5cec",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000327.npy": "e802a0e9ab8dc15fba0542c3fed6c7fd826960d023a5e30c0708eb6a03e45d6b",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000325.png": "6484321208a88b3612b3e37db884b56cb6e2973aece3c94c3f0343badd635ee0",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000325.png": "828f3dfda381f900c301a8d0f1109d08d816d4754b361d6469866018fffefc8c",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000373.npy": "3e5a4edb9796cfa5065eb0088391997c704fff2217fc1f5a84c823b84a3d93eb",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000374.npy": "026e5093e30eb6ca7b55263e288c7c93e18574d46712c95eb07c48036cf0b1e6",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000375.npy": "e38bafdc9b759b2b5c1f8567f3d29eb7e2424601565cdfb5961a7cfdafba0f9a",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000376.npy": "7fc9cf8560850c44053b80cda7a29d46802aac7a68ed15b39764a16245f099c1",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000377.npy": "b8bbf727cdba342647be7ab5b77004d146d849e6dcb2f341f77be12f7ed49330",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000375.png": "da08d10c234c0271fe268ad85bfc7419ff2fb951ce2394d412ded3c08c1ab3ee",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000375.png": "83fd9ff49f7b66aa3eb56fa218312c2e52141f3a029cf8ac8cac4e831455c607",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000423.npy": "78e7fdfa69aeda19db45dd0db13c705ebdb64a1b8df14ca59b415f9214a7c3b9",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000424.npy": "825302fa50f66a45d6cf107dccf9f4ce1868e7243ee966a29d8a69c591642fd9",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000425.npy": "9430aeb4b8f28eafc047e3802aca581ac4bedc1c59b82dbe6e4c9efa8af7a18b",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000426.npy": "65c102ebf3928a2669463f5435299c55351a2235c4a97a1c9de177c6f3496e99",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/prioception/000427.npy": "17bcbcfb1ce2296fbc6f7a230aa6708839c3a3259d49f4e5d1297a7f67398b00",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_left_rgb/000425.png": "5a5c606026f643890bddfcc5f0a6705e4191633508f70466361842b8bf700ffb",
+      "/home/wukf/projects/data/Mujoco_picklift/0211_204543/cam_right_rgb/000425.png": "c171b7889912bcf49b80beed18179c3ebe029190344822d86f33e360b9391890",
+      "/home/wukf/projects/tactile_enhance/Lerobot_datasets/Mujoco_Picklift_rc_260407_ud_T_R_D_NPC/videos/observation.images.left_cam/chunk-000/file-000.mp4": "1cde00aac7f4adecf4fdc6288112924da75cfc1a6a2e0c91bd3986925f673259",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000073.npy": "7b02c090843637b6c54b42dac606d131fbb6ea1839bf40a215836dfce476b5a1",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000074.npy": "a45bef76183e5d3f24468b170855190843904ce6130d08149ee64bee3af67aa4",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000075.npy": "0f39401c13b9ac4ee971acfb7d1df2ac00d9c4d4d5fc3d67b9c7d106c9f628c4",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000076.npy": "e47ab92b536b795f979b553ac77902557bcb0dc52884fc6088d795d76f389b59",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000077.npy": "34e29ffe34cab6cb9ceda8fdaeaf0a3e0159cac775de1f616df05c05147625c0",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000148.npy": "58446a6978429998ab68b4719c7cd1ef60961c0b46c1c4c719450995f88cf20d",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000149.npy": "9b0c9d74f12b518d2abc0cb0db3714efb57e43884aed5ecd3c6b62f910503562",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000150.npy": "2b16283d122bc9e59e529d30552e0698899a80de8e62b14cfb52d429b4401fdb",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000151.npy": "6430c82b1b14dc6ceafc208f1d95fd6639295ad9940a63eca965885348c10da8",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000152.npy": "98e8701737ef17eff5e8cbe8ecaf683ee0a97c01207ddcc9e89608f69e92fac9",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000223.npy": "e002dc56c65354dfaa42facaebeb5554fd0b796d6e121a17cdd97bc76dcbc8b3",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000224.npy": "31bba34aa1a5ad0dc5fe5ef199720f5ddfbb6cf79a5d5542e0ecfd36e1995e86",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000225.npy": "810583ecebd41934937d13df7d2963e4f583973d368d15903152dce1c8acbfbd",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000226.npy": "7357fadab0fee2a053f6d29b80860ab73dc705d2740f83ca932e65958082234b",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204422/prioception/000227.npy": "c80c9c6f93bfed0054e7e35c020920d809509258c82a17af12053f6683ec2de1",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000073.npy": "72f47d85d23efb4eeabb21af13919edad38f70e4ca46fa73d61ac47d154f69d0",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000074.npy": "681bd52edc879449080a7bb401279c2701b4d78d7ac10dde41ea6ef6c2541141",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000075.npy": "20dfdde639af716396a500cc0cc0a62557799855973d7262d51a093cb1ad94a2",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000076.npy": "d8bc4e46f471d9efdce0fa0a7a59e4b9528ef30673218dae764e3b253f93b2ae",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000077.npy": "3bb7e73c331d2d3eb71714048d854457b1e92f4d366790b574eadaa16b1a3bbf",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000148.npy": "378b64f70c933fb33911aabf83de02c90e4acd4219b8a2eae0250097a270b565",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000149.npy": "d99846fe6bd87c55e6acce8c488af67029371361a869ad9bcabe000544a24707",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000150.npy": "dc09c15bf8c74ccdc3025e02d4bccfd820d994b7dda65e60df930bad8bb5f428",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000151.npy": "143e79627326e58a5a715201031e1895c958c586ff0db9798b02615c5e1ffc1a",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000152.npy": "154dfd3aabccb49f1bf66f4334a5ee94a7edaf12fa48fd5661f72f7147a6c897",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000223.npy": "11794300e736d2d7344cddf482b0414f74a71b26876342600e9e63a3932cc9af",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000224.npy": "03dccbf203732ddcde5ec01d4b25381cc4a3c753b5021a5f9bb198c455120bcb",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000225.npy": "4421c2c0c2f8b39356dd0976fa866fefbc0a32dbd3679dcd336e134614d8eff6",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000226.npy": "22da70c6074541244dbe76a7d5740f89e86e71c9c926a9d7a20f7d38cd0f3675",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_204653/prioception/000227.npy": "33202f1c31a157d4441b9686d5517df8e537893e94beeb73708741e363ae65eb",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000073.npy": "2cbd3c692ccea8c631ecfc453d9fdca9536ad1fd7c1cb0a9135cb07cc1d29f75",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000074.npy": "40e30c3f5d54114ac71f3f05f11feba08be5b32bb87f165f87e848c028460e25",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000075.npy": "f6972cbbfb8937291723f6640e2daf778a1734befb7be5d11d186026f4471985",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000076.npy": "217f330d8edc8f50d503386d2d23809ce3ee5b04958c1a214b7ff09ccf68cbe9",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000077.npy": "707696dca238c947f69a735c4611a94ff7258dc5bd620b4666e3b852f778f7fe",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000148.npy": "a62f493778cd8142e8bb1233a95fbb75035c22819ba6770c6936de6139db8ef8",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000149.npy": "922c720e699cab8c75951278380f134e49f055ceb6967c5b34a31d10d778168c",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000150.npy": "9fb2a178e78f9bc142e0a9e3f68790f7f58184636c85d91e08b96619e02f6c24",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000151.npy": "39708131abb6ec25c31b3d978b5335cd1e986e553e75017165d2dd75b230dc2e",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000152.npy": "3c4ffd1abd2e17f1b928b26ffc3f1cde9b4e5574bf05715005e4bbb53bb1b97c",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000223.npy": "fe604c460c8cce0552636351f31af95445529cd9a1edaa3e97993efe4851187a",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000224.npy": "6d953225fcd3f3d251173731d10e49c46bcb6d362bb30b6e0de8282b0842aab7",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000225.npy": "240c3a3232ebd86c08e5a3a4828089b2a6d95cab64029f5ac4c68d6f09493b51",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000226.npy": "06447a27567b9638b74d453b553ae0efea0c0a2ce59f604ce78649323946d146",
+      "/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212/0211_211654/prioception/000227.npy": "78a0f78773ea0acdaaa6f04283a988cfb0757229b65e01f79f4ea90307d6da5a",
+      "/home/wukf/projects/tactile_enhance/Lerobot_datasets/Mujoco_Picklift_rc_260407_ud_T_R_D_NPC/videos/observation.images.right_cam/chunk-000/file-000.mp4": "44beea71b52a25177b192a89cfc3e4bf8f4b717b828fcb118e2ad30256a39177"
+    }
+  }
+}
+

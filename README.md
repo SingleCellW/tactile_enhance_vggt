@@ -15,6 +15,8 @@ current LeRobot ACT are trained. This repository does not modify upstream LeRobo
 ## Experiment contract
 
 - Same-time left/right RGB pairs; no future images or whole-episode reconstruction.
+  Rendering audit establishes that stored RGB row `r` depicts recorded state
+  row `r-1`; repaired observations explicitly correct this historical lag.
 - VGGT predicted camera/depth heads, BF16 inference, no gradients. No GT depth.
 - Known first-camera orientation/origin and known stereo baseline fix the global
   coordinate and scale ambiguity. This is a **calibrated** experiment.
@@ -32,6 +34,27 @@ current LeRobot ACT are trained. This repository does not modify upstream LeRobo
 - Pilot geometry observations use stride 4. Action labels remain the full 20 Hz
   source stream, including its historical next-frame command convention.
 - Normalization uses training episodes only. Action chunks never cross episodes.
+
+## Historical data alignment
+
+The inherited dataset pairs original recorded RGB/state with tactile generated
+by a later controller replay. Its tactile anchors are not consistently aligned
+to the recorded hand: an audit found a 26.2 mm 90th-percentile error among active
+sensor/frame pairs, with a 115.7 mm maximum. Those inherited tactile observations
+must not be used to assess spatial anchoring.
+
+The current pilot recomputes native tactile at the complete recorded 29D simulator
+state, using causal generalized velocities from consecutive timestamps within each
+episode. Object pose is used only to synthesize tactile, never as a policy input.
+Both force and anchors are replaced together. `repair_cached_tactile.py` creates a
+new cache, verifies frame/state correspondence, preserves retained VGGT visual points
+bit for bit, and recomputes train-only pressure normalization. Its manifest records
+the regeneration report and hashes. The paired launcher requires this repaired cache.
+Each trajectory's first cached RGB is dropped because its previous recorded
+state is unavailable. Remaining RGB row `r` is paired with state/force and the
+existing source action label at `r-1`; action arrays retain their original rate.
+See [native regeneration](docs/native_tactile_repair.md) for the force-proxy
+assumptions and [paired protocol](docs/ablation_protocol.md) for comparison limits.
 
 ## Training
 
@@ -53,14 +76,14 @@ PyTorch installation without modifying it. Project-local packages pin compatible
 NumPy and torchvision CUDA wheels. Source and dependencies are separate from
 the old tactile project.
 
-After checking a small real geometry sample, submit the paired pilot:
+After creating and checking the synchronized tactile cache, submit the paired pilot:
 
 ```bash
 nohup bash scripts/run_pilot.sh > logs/pilot_supervisor.log 2>&1 < /dev/null &
 ```
 
-The supervisor uses physical GPU 1/2, creates two independent geometry shards,
-merges only completed compatible shards, then trains anchored/unanchored ACT.
+The supervisor uses physical GPU 1/2 and trains anchored/unanchored ACT against
+the same completed `cache/pickplace_vggt_native_sync_stride4` cache.
 It refuses duplicate campaign names and insufficient free GPU memory. Inspect
 the process IDs and logs under `logs/`, and `outputs/*/status.json` for loss,
 step, memory, throughput and Shanghai-time ETA. Checkpoints are written atomically
@@ -70,9 +93,9 @@ Direct single-run or resume commands:
 
 ```bash
 CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/train_act.py \
-  --cache cache/pickplace_vggt_stride4 --output outputs/example --mode anchored
+  --cache cache/pickplace_vggt_native_sync_stride4 --output outputs/example --mode anchored
 CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/train_act.py \
-  --cache cache/pickplace_vggt_stride4 --output outputs/resumed --mode anchored \
+  --cache cache/pickplace_vggt_native_sync_stride4 --output outputs/resumed --mode anchored \
   --resume outputs/example/checkpoints/005000
 ```
 
@@ -84,14 +107,21 @@ joint targets. `needs_observation` avoids recomputing VGGT while the action queu
 is nonempty; `reset()` clears it. A supplied point-builder callback can create
 points from current RGB and calibration at each refresh.
 
+Simulator deployment must use the same native tactile adapter and sensor ordering
+as the repaired training readouts. The inherited replay-generated forces are not
+interchangeable with the repaired observations. Geometry refresh currently runs
+synchronously when the action queue empties; this adapter alone does not establish
+continuous 20 Hz closed-loop operation. Async refresh/prefetch requires separate
+control-loop validation.
+
 `scripts/benchmark_inference.py` separately measures fresh ACT chunks, normalized
 point-input processing, queued actions, and optionally true RGB→VGGT→ACT refreshes:
 
 ```bash
 CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/benchmark_inference.py \
-  --checkpoint outputs/example/latest --cache cache/pickplace_vggt_stride4 \
+  --checkpoint outputs/example/latest --cache cache/pickplace_vggt_native_sync_stride4 \
   --device cuda:0 --amp bfloat16 --output outputs/example/latency.json \
-  --geometry-input cache/pickplace_vggt_stride4/shard-000/example_observation.npz \
+  --geometry-input cache/pickplace_vggt_native_sync_stride4/example_observation.npz \
   --vggt-repo vendor/vggt --vggt-weights weights/model.pt
 ```
 
