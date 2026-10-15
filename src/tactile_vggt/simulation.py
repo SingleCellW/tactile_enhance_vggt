@@ -221,11 +221,11 @@ class PickLiftSimulation:
         if len(indices) != 1 or qpos.shape != (29,) or not np.isfinite(qpos).all():
             raise ValueError("Raw initialization state does not match source indexing")
         np.testing.assert_array_equal(qpos[:22].astype(np.float32), self.source_state[indices[0]])
-        previous, dt = None, None
+        previous, wall_dt = None, None
         if frame:
             previous = np.load(raw / rows[frame - 1]["prioception_path"], allow_pickle=False)
-            dt = float(rows[frame]["timestamp"]) - float(rows[frame - 1]["timestamp"])
-            if not np.isfinite(dt) or dt <= 0:
+            wall_dt = float(rows[frame]["timestamp"]) - float(rows[frame - 1]["timestamp"])
+            if not np.isfinite(wall_dt) or wall_dt <= 0:
                 raise ValueError("Non-positive causal initialization dt")
         offset = np.zeros(2) if object_xy_offset is None else np.asarray(object_xy_offset, dtype=np.float64)
         if offset.shape != (2,) or not np.isfinite(offset).all():
@@ -240,10 +240,14 @@ class PickLiftSimulation:
         self.mujoco.mj_resetData(self.model, self.sensor_data)
         self.data.qpos[:] = qpos
         if previous is not None:
-            self.mujoco.mj_differentiatePos(self.model, self.data.qvel, dt, previous, qpos)
+            # Consecutive recorded states advance one frozen .01s physics
+            # step. Wall timestamps describe recording cadence, not dynamics.
+            self.mujoco.mj_differentiatePos(self.model, self.data.qvel, float(self.model.opt.timestep), previous, qpos)
         self.data.ctrl[:] = qpos[:22]
         self.mujoco.mj_forward(self.model, self.data)
-        self._sensor_snapshot(previous, dt)
+        # Sensor velocity follows its independently configured training time
+        # basis, exactly as it does after every subsequent control tick.
+        self._sensor_snapshot(previous, self.sensor_dt if previous is not None else None)
         self.tactile.reset()
         self.episode_id, self.control_tick = episode_id, 0
         self.max_cube_height = self.initial_cube_height = float(self.data.xpos[self.cube_id, 2])
@@ -252,7 +256,10 @@ class PickLiftSimulation:
         self.last_clipped_dims = []
         self.initialization = {"episode_id": episode_id, "raw_episode": raw.name, "frame": frame, "seed": int(seed),
                                "qpos_path": str(qpath), "qpos_sha256": file_sha(qpath),
-                               "timestamp_file_sha256": file_sha(csv_path), "object_xy_offset": offset.tolist()}
+                               "timestamp_file_sha256": file_sha(csv_path), "object_xy_offset": offset.tolist(),
+                               "recorded_wall_dt": wall_dt,
+                               "physics_velocity_dt": float(self.model.opt.timestep) if previous is not None else None,
+                               "sensor_velocity_dt": self.sensor_dt if previous is not None else None}
         self.ready = True
         if self.info()["inside_goal"]:
             self.first_goal_tick = 0

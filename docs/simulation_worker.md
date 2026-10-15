@@ -36,7 +36,10 @@ actuators are clipped to their scene `ctrlrange`; counts and dimensions are
 reported. `reset` uses complete raw qpos29, zero velocity at frame zero and
 `ctrl=qpos[:22]`, with no extra settling step. Optional `object_xy_offset` is an
 explicit initialization intervention. Nonzero reset frames are supported for
-fixture tests, using only that frame and its predecessor.
+fixture tests, using only that frame and its predecessor. Physical reset qvel
+uses the recorded `.01`-second state-transition interval; sensor reset qvel uses
+the independently configured `sensor_dt`. Original wall timing is retained as
+provenance and does not set either velocity.
 
 Successful responses contain `ok`, `command`, `info`, `control_tick`, `sim_time`
 and elapsed `worker_seconds`. Reset also includes native runtime provenance.
@@ -78,8 +81,11 @@ is not a calibrated physical force. WXYZ/XYZW object conversion, COM-to-origin
 velocity conversion, full-frame FK and mesh checks match the data repair.
 
 Verified smoke results are under `artifacts/sim_worker_smoke` on the server:
-the native force and anchors at episode 1/frame 125 exactly matched the v1
-repaired cache; five control ticks advanced `.05` physical seconds with one
+the original native fixture matched the v1 repaired cache before the reset time
+basis was corrected. The current `reset_velocity_v2_regression.json` verifies
+that force and anchors at episode 1/frame 125 exactly match the v2 cache with
+`sensor_dt=.01`, that `.05` sensor timing does not change physical qvel, and
+that frame-zero velocities remain zero. Five control ticks advanced `.05` physical seconds with one
 substep; a separate five-substep check exactly matched manual MuJoCo stepping.
 Repeated observation did not alter physics state, and skipped observations did
 not change the causal sensor velocity interval.

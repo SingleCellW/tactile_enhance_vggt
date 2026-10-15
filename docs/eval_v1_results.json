@@ -1,0 +1,314 @@
+{
+  "complete": true,
+  "protocol": "v1 development evaluation; inherited action/velocity timing limitations",
+  "episodes": [
+    1,
+    24,
+    35,
+    43,
+    52
+  ],
+  "physical_seconds": 6,
+  "models": [
+    {
+      "model": "anchored_001000",
+      "checkpoint": "/home/wukf/projects/tactile_enhance_vggt/outputs/act_vggt_native_sync_s43_anchored/checkpoints/001000",
+      "episodes": 5,
+      "final_goal_count": 2,
+      "strict_stable_goal_count": 1,
+      "lifted_count": 3,
+      "per_episode": [
+        {
+          "episode": 1,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.4752866031284373,
+            -0.08931553424629249,
+            0.03489224457806114
+          ],
+          "wall_seconds": 36.748008500784636,
+          "geometry_median_s": 0.3811892680823803
+        },
+        {
+          "episode": 24,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.5406525504211548,
+            -0.342609579510465,
+            0.03489224457978384
+          ],
+          "wall_seconds": 36.88954094424844,
+          "geometry_median_s": 0.38155728206038475
+        },
+        {
+          "episode": 35,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.405644995658036,
+            -0.38102478190550565,
+            0.13494647938188306
+          ],
+          "wall_seconds": 36.97797177731991,
+          "geometry_median_s": 0.3811478726565838
+        },
+        {
+          "episode": 43,
+          "final_goal": true,
+          "strict_stable_release": false,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.5169648514279911,
+            -0.2506615738444818,
+            0.03489120658738932
+          ],
+          "wall_seconds": 36.99799656495452,
+          "geometry_median_s": 0.38350334763526917
+        },
+        {
+          "episode": 52,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.6443274317058827,
+            0.12422615007484514,
+            0.03489224457978382
+          ],
+          "wall_seconds": 36.767358496785164,
+          "geometry_median_s": 0.38256822153925896
+        }
+      ]
+    },
+    {
+      "model": "unanchored_001000",
+      "checkpoint": "/home/wukf/projects/tactile_enhance_vggt/outputs/act_vggt_native_sync_s43_unanchored/checkpoints/001000",
+      "episodes": 5,
+      "final_goal_count": 1,
+      "strict_stable_goal_count": 1,
+      "lifted_count": 2,
+      "per_episode": [
+        {
+          "episode": 1,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.4580881487898394,
+            -0.03001761257102192,
+            0.03489224457978241
+          ],
+          "wall_seconds": 36.680475167930126,
+          "geometry_median_s": 0.3812958300113678
+        },
+        {
+          "episode": 24,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.47615218488301847,
+            -0.34020127720788323,
+            0.034892244579783856
+          ],
+          "wall_seconds": 36.73824376985431,
+          "geometry_median_s": 0.38047144189476967
+        },
+        {
+          "episode": 35,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.5858437148025819,
+            -0.1285218719464423,
+            0.03489224457978382
+          ],
+          "wall_seconds": 36.59123957529664,
+          "geometry_median_s": 0.38082707300782204
+        },
+        {
+          "episode": 43,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.619896843936587,
+            -0.02368545492926796,
+            0.03489224457978381
+          ],
+          "wall_seconds": 36.68059489503503,
+          "geometry_median_s": 0.38137951120734215
+        },
+        {
+          "episode": 52,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.6670191530380257,
+            0.11263114246959618,
+            0.034892244579783877
+          ],
+          "wall_seconds": 36.74541607871652,
+          "geometry_median_s": 0.3817378133535385
+        }
+      ]
+    },
+    {
+      "model": "anchored_036000",
+      "checkpoint": "/home/wukf/projects/tactile_enhance_vggt/outputs/act_vggt_native_sync_s43_anchored/checkpoints/036000",
+      "episodes": 5,
+      "final_goal_count": 4,
+      "strict_stable_goal_count": 4,
+      "lifted_count": 5,
+      "per_episode": [
+        {
+          "episode": 1,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.48817999779666565,
+            -0.3189149678920065,
+            0.034892244579783877
+          ],
+          "wall_seconds": 36.857067584991455,
+          "geometry_median_s": 0.3806065730750561
+        },
+        {
+          "episode": 24,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.44579213927361294,
+            -0.31846243410183633,
+            0.034892244579783835
+          ],
+          "wall_seconds": 36.790349286049604,
+          "geometry_median_s": 0.3794047236442566
+        },
+        {
+          "episode": 35,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.46120294030608333,
+            -0.2667630628237105,
+            0.034892244579783877
+          ],
+          "wall_seconds": 34.058073192834854,
+          "geometry_median_s": 0.3369113467633724
+        },
+        {
+          "episode": 43,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.4561801249418874,
+            -0.31985014919705124,
+            0.03489224457978385
+          ],
+          "wall_seconds": 33.10348979011178,
+          "geometry_median_s": 0.3368489593267441
+        },
+        {
+          "episode": 52,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.4599279136831501,
+            0.008170417777847315,
+            0.03489224457978383
+          ],
+          "wall_seconds": 32.91070691496134,
+          "geometry_median_s": 0.33715227618813515
+        }
+      ]
+    },
+    {
+      "model": "unanchored_036000",
+      "checkpoint": "/home/wukf/projects/tactile_enhance_vggt/outputs/act_vggt_native_sync_s43_unanchored/checkpoints/036000",
+      "episodes": 5,
+      "final_goal_count": 1,
+      "strict_stable_goal_count": 1,
+      "lifted_count": 1,
+      "per_episode": [
+        {
+          "episode": 1,
+          "final_goal": true,
+          "strict_stable_release": true,
+          "lifted": true,
+          "final_cube_xyz": [
+            0.48097996581248115,
+            -0.28482155937736287,
+            0.034892244579783856
+          ],
+          "wall_seconds": 32.851216815412045,
+          "geometry_median_s": 0.3386233001947403
+        },
+        {
+          "episode": 24,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.3688846586299879,
+            0.06001944378811415,
+            0.034892244579783877
+          ],
+          "wall_seconds": 33.01625348255038,
+          "geometry_median_s": 0.33800509199500084
+        },
+        {
+          "episode": 35,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.49721485358104506,
+            0.00322503881112184,
+            0.03489224457978387
+          ],
+          "wall_seconds": 32.96064602583647,
+          "geometry_median_s": 0.33835627883672714
+        },
+        {
+          "episode": 43,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.49506214379043834,
+            -0.13610850280258033,
+            0.03489224457978275
+          ],
+          "wall_seconds": 38.95297208800912,
+          "geometry_median_s": 0.3552966080605984
+        },
+        {
+          "episode": 52,
+          "final_goal": false,
+          "strict_stable_release": false,
+          "lifted": false,
+          "final_cube_xyz": [
+            0.4504778303193215,
+            -0.016225084365421475,
+            0.03489224457978378
+          ],
+          "wall_seconds": 44.96148333698511,
+          "geometry_median_s": 0.4943208545446396
+        }
+      ]
+    }
+  ]
+}

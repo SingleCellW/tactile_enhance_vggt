@@ -90,7 +90,11 @@ def prepare(args):
         raise ValueError("Use a new empty output-root; existing suites are immutable")
     if output == cache or cache in output.parents:
         raise ValueError("Keep the suite output outside the immutable cache")
-    python = Path(args.python).resolve(strict=True)
+    # Keep a virtual environment's bin/python path: resolving its symlink to
+    # the shared base interpreter silently discards that environment's packages.
+    python = Path(args.python).absolute()
+    if not python.is_file() or not os.access(python, os.X_OK):
+        raise ValueError(f"Python executable is unavailable: {python}")
     output.mkdir(parents=True, exist_ok=True)
     (output / "configs").mkdir()
     (output / "logs").mkdir()

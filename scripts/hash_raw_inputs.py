@@ -21,6 +21,7 @@ def main():
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--attach-report", type=Path, help="Attach the profile hash to a completed merged repair report")
     p.add_argument("--rgb-timing-audit", type=Path, help="Record independently verified RGB lag when attaching a report")
+    p.add_argument("--physics-timing-audit", type=Path, help="Bind independent raw-state transition evidence for a fixed physical velocity dt")
     args = p.parse_args()
     with np.load(args.source_readouts, allow_pickle=False) as source:
         state = source["state22"].copy()
@@ -73,6 +74,15 @@ def main():
             report["rgb_timing_audit"] = {"path": str(args.rgb_timing_audit.resolve()), "sha256": sha(args.rgb_timing_audit),
                                            "verified": True, "rgb_lag_frames": lag}
             report["rgb_status"] = f"Independent render audit confirms RGB[t] corresponds to qpos[t-{lag}]; this raw readout stays indexed by qpos. Cache assembly must apply this within-episode mapping and discard unavailable leading observations."
+        if args.physics_timing_audit:
+            audit = json.loads(args.physics_timing_audit.read_text())
+            if (audit.get("complete") is not True or report.get("velocity_dt") is None
+                    or not np.isclose(report["velocity_dt"], audit["compiled_timestep_s"], rtol=0, atol=1e-12)):
+                raise ValueError("Physical timing audit does not match the fixed native velocity interval")
+            report["physics_timing_audit"] = {"path": str(args.physics_timing_audit.resolve()),
+                                               "sha256": sha(args.physics_timing_audit), "complete": True,
+                                               "compiled_timestep_s": audit["compiled_timestep_s"],
+                                               "scope": "Independent sampled raw-state transition evidence; not hidden-state-perfect replay"}
         args.attach_report.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps({k: v for k, v in profile.items() if k != "episode_profiles"}, indent=2))
 

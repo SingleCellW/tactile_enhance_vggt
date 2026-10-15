@@ -131,6 +131,9 @@ def run(args):
         expected_sensor_dt = .05  # v1 wall-time proxy, approximated by nominal recording interval.
     if not np.isclose(args.sensor_dt, expected_sensor_dt, rtol=0, atol=1e-12):
         raise ValueError(f"sensor-dt must match trained tactile time basis: {expected_sensor_dt}")
+    physics_aligned = manifest.get("configuration", {}).get("action_label_repair", {}).get("action_target_offset_frames") == 0
+    if physics_aligned and (args.substeps != 1 or expected_sensor_dt != .01):
+        raise ValueError("The repaired v2 command stream requires one 0.01s physics step per action")
     episodes = manifest["split"]["val"] if args.episodes is None else [int(x) for x in args.episodes.split(",")]
     if not episodes or len(set(episodes)) != len(episodes):
         raise ValueError("Need unique evaluation episode IDs")
@@ -143,7 +146,8 @@ def run(args):
     names = [json.loads((p / "config.json").read_text())["config"]["mode"] + "_" + p.name for p in checkpoints]
     if len(names) != len(set(names)):
         raise ValueError("Checkpoint mode/step names collide; evaluate these runs in separate outputs")
-    config = {"protocol": "heldout_initial_states_recorded_physics_v1", "episodes": episodes,
+    config = {"protocol": "heldout_initial_states_recorded_physics_v2" if physics_aligned else
+                          "heldout_initial_states_recorded_physics_v1", "episodes": episodes,
               "steps": args.max_steps, "physics_dt": .01, "substeps": args.substeps,
               "control_dt": .01 * args.substeps, "seed": args.seed,
               "sensor_velocity_dt": args.sensor_dt,
@@ -166,6 +170,8 @@ def run(args):
               "vggt_repo": str(Path(args.vggt_repo).resolve()),
               "vggt_weights": {"path": str(Path(args.vggt_weights).resolve()), "sha256": weight_sha},
               "vggt_preparation_sha256": digest(ROOT / "scripts/prepare_cache.py"),
+              "gpu_environment": {key: os.environ.get(key) for key in
+                                  ("CUDA_VISIBLE_DEVICES", "MUJOCO_EGL_DEVICE_ID")},
               "n_action_steps_override": args.n_action_steps}
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
