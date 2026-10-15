@@ -9,6 +9,7 @@
 - ACT chunk=16，每次执行前 8 个动作后刷新观测。训练观测 stride4 不改变动作序列的逐帧间隔。
 - 当前双目 RGB 经训练时相同的裁剪/缩放进入冻结 VGGT；关节状态、44 路触觉、FK 触觉位置与 RGB 同步。物体真值只用于触觉仿真和评分。
 - `final_goal` 为旧项目的最终物体中心判据；`strict_stable_goal` 另要求连续 1 秒处于目标区、线速度 <0.05 m/s、角速度 <0.5 rad/s、无手/物接触。二者均在固定 horizon 结束时评分。
+- “曾抬起”要求物体中心比初始高度至少升高 5cm。
 - 模拟时间在推理期间暂停。这是控制有效性评估，不是实时控制频率测试。
 - 这些初态来自用于 checkpoint 选择的 validation episodes，因此属于开发集闭环评估，不能视作独立测试集。
 
@@ -43,6 +44,38 @@
 三组 `anchored` / `unanchored` / `no_tactile` 使用完全相同的数据、初始化、batch 顺序、优化器和 6000 步预算。保留 seed43、batch64、LR1e-5、BF16、chunk16/execute8，每 500 步完整验证并保存。此次是短程诊断，不与 v1 的 36k 模型宣称等预算优劣；同时评估验证集选出的 checkpoint 和统一 6000 步终点。
 
 训练目录：`outputs/v2_physics_aligned_s43_r2/`。首次启动暴露 launcher 对 Python 符号链接调用 `resolve()` 导致脱离虚拟环境，已改为保留 `.venv/bin/python` 入口并补回归测试；失败日志保留在不带 `_r2` 的目录，未产生有效优化步骤。
+
+三组短程训练已完成。6000 步终点的完整配对结果为：
+
+| 模式 | 最终进入目标区 | 稳定放置并释放 | 曾抬起 |
+| --- | ---: | ---: | ---: |
+| anchored | 0/5 | 0/5 | 2/5 |
+| unanchored | 1/5 | 1/5 | 1/5 |
+| no_tactile | 0/5 | 0/5 | 2/5 |
+
+验证集最佳 checkpoint 三组都为 step1000，稳定放置分别为 anchored 0/5、unanchored 1/5、no_tactile 1/5。短程共 30 次、加上旧版 20 次，共完成 50 次闭环测试。完整数值摘要见 `docs/eval_v2_short_results.json`；原始报告和视频保存在本地 `artifacts/eval_v2_*` 与远端 `outputs/eval_v2_*`。
+
+短程修正数据实验尚未复现旧版 36k 的锚定收益。这里既改变了数据时序、又缩短了相对 v1 的训练预算，不能将二者混为一个因果结论；三组 v2 内部仍是相同预算比较。
+
+## 已执行的完整预算续训与自动评估
+
+三个模式均从各自完整的 6000 步 checkpoint 恢复模型、优化器、随机数状态和 batch sampler，继续到总计 36000 步。早期 checkpoint 通过只读使用的符号链接保留，未重写原实验。继续保持同一数据划分、seed43、batch64、LR1e-5、BF16 和模型结构；后半程每 1000 步验证、每 2000 步保存，以控制磁盘用量。
+
+- 配置：`configs/act_physics_aligned_v2_full.json`。
+- 远端训练根目录：`/home/wukf/projects/tactile_enhance_vggt/outputs/v2_physics_aligned_full36k_s43/`。
+- 三个训练 PID：anchored=4093377、unanchored=4093378、no_tactile=4093379；物理 GPU 分别为 1、2、1。
+- 续训已实际超过 11000 步，损失有限，峰值训练显存约 0.8GiB/进程；不是只写了启动计划。
+- 一次性评估依赖任务 PID=4095204，输出目录 `outputs/eval_v2_full36k_auto/`。`status.json` 已验证处于 `waiting`，绑定上述三个训练任务。
+
+交付前最后检查为 **2026-10-16 04:11 北京时间**：三组分别已到 18800 / 19500 / 18700 步，均正常运行。结合实测训练、验证和存档开销，训练预计 **04:21–04:25** 完成；后续完整离线评分和双卡闭环评估预计 **04:35–04:40** 结束。以上是共享 GPU 条件下的估计，最新状态以远端文件为准。
+
+`scripts/evaluate_when_ready.py` 在三个训练状态都完成 36000 步后，先重评所有早期及后期 saved checkpoints，再将 validation-best / 36000-step endpoint 两组闭环评估分配给 A40 1、2。相同 checkpoint 只执行一次，`selection.json` 保存两种选择角色的映射。脚本固定数据 manifest 与评估实现哈希，并在训练失败、进程死亡、超时或评估错误时记录失败；它不会停止训练进程。这是当前实验的一次性任务依赖，不是周期调度。
+
+截至本次提交，完整 36k 的新结果仍在计算，不能把 v1 的 4/5 当作修正后的成绩。完整新结果将写入自动评估目录中的 `offline.json`、`selection.json` 及 `best_saved/`、`final_equal_budget/`。
+
+## 验证
+
+最终测试集通过 **61 tests + 27 subtests**。另外在真实 MuJoCo/native tactile 环境验证了单步/多步因果推进、重复观测不改变物理速度、独立的物理与传感器速度基准，以及 v2 接触帧的在线 force44/anchors 与缓存逐元素一致。闭环视频已核验真实抓取和释放行为。
 
 ## 几何诊断的解释边界
 
