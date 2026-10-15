@@ -178,7 +178,7 @@ def render_overview(examples, output):
 
 
 def render_matching_source_rgb(examples, output):
-    """Show source images only when their explicit row ID matches plotted data."""
+    """Match by state row while labeling a separately recorded RGB source row."""
     first = examples[0]
     path = Path(first["cache"]) / "example_observation.npz"
     if not path.exists():
@@ -188,7 +188,10 @@ def render_matching_source_rgb(examples, output):
             return {"included": False, "reason": "Legacy example has no explicit source_frame; no correspondence assumed"}
         source_frame = int(archive["source_frame"].item())
         if source_frame != first["source_frame"]:
-            return {"included": False, "reason": "Example RGB source_frame differs from the first plotted observation"}
+            return {"included": False, "reason": "Example state source_frame differs from the first plotted observation"}
+        # Repaired lagged examples distinguish the RGB row from the state row.
+        # Older zero-lag examples store only source_frame, shared by both.
+        rgb_source_frame = int(archive["rgb_source_frame"].item()) if "rgb_source_frame" in archive else source_frame
         rgb = archive["rgb"].copy()
     if rgb.ndim != 4 or rgb.shape[0] != 2 or rgb.shape[-1] != 3:
         return {"included": False, "reason": "Example RGB shape is not two RGB views"}
@@ -198,10 +201,15 @@ def render_matching_source_rgb(examples, output):
         axis.imshow(rgb[view])
         axis.set_title(("left_cam", "right_cam")[view])
         axis.axis("off")
-    figure.suptitle(f"Source RGB · episode {first['episode']} / frame {first['frame_index']} · row {source_frame}")
+    figure.suptitle(f"Source RGB · episode {first['episode']} / state frame {first['frame_index']}\n"
+                   f"State row {source_frame} · RGB row {rgb_source_frame}")
     figure.savefig(output, dpi=170)
     plt.close(figure)
-    return {"included": True, "source_frame": source_frame, "path": str(output), "source_npz": str(path)}
+    return {"included": True, "source_frame": source_frame,
+            "source_frame_semantics": "state row used by the plotted observation",
+            "state_source_frame": source_frame, "rgb_source_frame": rgb_source_frame,
+            "rgb_lag_frames": rgb_source_frame - source_frame,
+            "path": str(output), "source_npz": str(path)}
 
 
 def inspect(args):

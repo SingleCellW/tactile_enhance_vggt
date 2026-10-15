@@ -91,3 +91,10 @@ object mesh discrepancy 49.4 nm and velocity/Jacobian discrepancy 4.44e−16.
 Full reconstruction is approximately 7–8 minutes using two GPUs sequentially
 within each episode. Earlier probes without the COM-to-origin correction are
 superseded and must not be used for training.
+
+The completed 20,212-frame reconstruction took 421.5 seconds in parallel.
+Across every frame, the maximum anchor discrepancy was 1.763 µm, object mesh
+discrepancy 68.34 nm and velocity/Jacobian discrepancy 8.88e−16. All output
+arrays were finite and their state/episode/frame rows exactly matched the
+source. See `native_tactile_repair_result.json` for checksums and measured
+output distributions.
