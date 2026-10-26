@@ -1,0 +1,7 @@
+{
+  "remote_host": "your-ssh-alias",
+  "remote_home": "/home/your-user",
+  "bind": "127.0.0.1",
+  "port": 8766,
+  "url": "http://127.0.0.1:8766/"
+}
