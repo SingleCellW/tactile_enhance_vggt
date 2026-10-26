@@ -32,15 +32,18 @@ then verifies that generated files did not dirty the source tree.
   0.24.1. Installed dependency compatibility passed.
 - Shared LeRobot and VGGT checkouts passed commit/clean-worktree checks. The
   latter is fixed at `a288dd0f14786c93483e45524328726ab7b1b4ce`.
-- Full CPU regression suite passed before the final additional relocation case;
-  final clean-checkout results are recorded below. Coverage includes ACT gradients,
+- A clean clone at `a3f61f8`, with a fresh Python 3.12 environment installed from
+  the 67-package CPU lock and shared pinned LeRobot source, passed **243 tests,
+  zero failures and zero skips**. No historical data, outputs, machine config or
+  project environment were copied into that clone. Coverage includes ACT gradients,
   checkpoint round trips, cached/live feature parity, coordinate/data isolation,
   camera sampling/training fixtures, native MuJoCo synthetic state preservation,
   relocation without rewriting evidence, configuration and scheduler boundaries.
 - Seventeen representative training/evaluation/data/dependency CLIs accepted
   `--help` in the isolated environment without private inputs or starting jobs.
-- Wheel build succeeded with only package source and metadata, excluding external
-  repositories, checkpoints, reports and machine configuration.
+- Wheel build and an independent wheel-install import smoke passed. Artifacts
+  defaulted to the caller's directory rather than site-packages. The wheel contains
+  package source and metadata, excluding external repositories and run outputs.
 - All 2,597 moved project artifact/document files were checked before/after using
   SHA256. All 374 files in the preserved portal were separately verified unchanged.
 - Stage 1.a data rebuilt with complete inputs and no missing evidence. The legacy
@@ -49,6 +52,10 @@ then verifies that generated files did not dirty the source tree.
 - A complete candidate site/bundle validated 376 public files and 861 internal
   references, plus all recorded hashes. The data-free shell also built and passed
   static link/hash checks. No SSH publication or browser interaction check occurred.
+- The clean clone also passed dependency compatibility, active ACT source checks,
+  data-free portal build and the 153-file source-boundary check. Its Git working
+  tree remained clean after all checks. Later changes to this document only record
+  those results; they do not alter the tested implementation.
 
 Raw test logs, JUnit output, build receipts and migration manifests live under
 `.local/maintenance/`, `.local/qa/` and `.local/migration/`; they are not tracked.
