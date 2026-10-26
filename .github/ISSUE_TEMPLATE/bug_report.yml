@@ -1,0 +1,39 @@
+name: Reproducible problem
+description: Record a failure with source, environment and acceptance criteria.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed and expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include commit, exact command, relevant config and data/weight identifiers. Keep private data and large outputs outside Git.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and evidence
+      description: Python, dependency commits, CPU/GPU, doctor output and a durable evidence location/hash.
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - P0 — blocks correctness or a supported workflow
+        - P1 — reproducibility or important capability gap
+        - P2 — improvement
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: State what must be measured or tested before this issue can close.
+    validations:
+      required: true

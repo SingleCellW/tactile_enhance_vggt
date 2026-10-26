@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this research software, cite this repository and the upstream VGGT and LeRobot work separately."
+title: "Tactile Enhance VGGT"
+type: software
+authors:
+  - name: "SingleCellW"
+repository-code: "https://github.com/SingleCellW/tactile_enhance_vggt"
+url: "https://github.com/SingleCellW/tactile_enhance_vggt"
+abstract: "Research implementations of frozen VGGT geometry, tactile token fusion, ACT policies and calibrated camera augmentation."
