@@ -1,0 +1,39 @@
+{
+  "format_version": 1,
+  "git": {
+    "lerobot": {
+      "url": "https://github.com/huggingface/lerobot.git",
+      "commit": "297774fca4e3ad0aa34e7425fbf937111637e77b",
+      "python": ">=3.12",
+      "distribution_version": "0.6.2",
+      "purpose": "ACT policy implementation; install this checkout in the training environment"
+    },
+    "vggt": {
+      "url": "https://github.com/facebookresearch/vggt.git",
+      "commit": "a288dd0f14786c93483e45524328726ab7b1b4ce",
+      "purpose": "Frozen visual backbone and camera/depth heads"
+    }
+  },
+  "weights": {
+    "vggt_1b": {
+      "url": "https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt",
+      "filename": "model.pt",
+      "sha256": "d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0"
+    }
+  },
+  "local_assets": {
+    "dynamic_root": {
+      "purpose": "Historical native tactile readout code, geometry and MuJoCo assets; not publicly bundled",
+      "required_paths": [
+        "eval/sim/tactile_sim/tac-pts.npy",
+        "eval/sim/tactile_sim/urdf",
+        "eval/assets/picklift/scene.xml",
+        "eval/assets/rotate/meshes/0.07cube.obj",
+        "readouts/geometry.npz",
+        "readouts/geometry.json"
+      ],
+      "required_modules": ["dynamic44.py", "fixed44_geometry.py"],
+      "verification": "Exact asset hashes belong to each data/run manifest; no universal hash is claimed for unavailable private assets"
+    }
+  }
+}

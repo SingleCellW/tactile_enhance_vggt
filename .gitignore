@@ -1,12 +1,37 @@
+# Machine-local environments, shared dependency links and run artifacts.
+/.local/
+/external/
+/.venv/
+/.env
+/.env.*
+!/.env.example
+/configs/machines/local.json
+/configs/machines/*.local.json
+
+# Historical paths remain ignored during migration and old-run retrieval.
+/cache/
+/outputs/
+/logs/
+/weights/
+/vendor/
+/artifacts/
+/inputs/
+/reports/
+/lerobot
+/portal_host/bundles/
+/portal_host/deployment.json
+/portal_host/verification*.json
+/slurm-*.out
+
+# Python/tool outputs. None are experiment inputs.
 __pycache__/
 *.py[cod]
 .pytest_cache/
-.venv/
-cache/
-outputs/
-logs/
-weights/
-vendor/
-artifacts/
-inputs/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 *.egg-info/
+/build/
+/dist/
+.DS_Store

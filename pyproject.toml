@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tactile-enhance-vggt"
+version = "0.1.0"
+description = "Reproducible frozen VGGT and tactile fusion research pipelines"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=2.0,<2.3"]
+
+[project.optional-dependencies]
+train = ["torch>=2.7,<2.12", "torchvision>=0.22,<0.27", "Pillow>=10,<13", "einops>=0.8,<0.9"]
+sim = ["mujoco==3.4.0", "Pillow>=10,<13", "torch>=2.7,<2.12"]
+report = ["matplotlib>=3.10,<4", "Pillow>=10,<13"]
+dev = ["pytest>=8,<9"]
+
+[project.urls]
+Repository = "https://github.com/SingleCellW/tactile_enhance_vggt"
+Issues = "https://github.com/SingleCellW/tactile_enhance_vggt/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "scripts", "."]
+cache_dir = ".local/cache/pytest"
+markers = [
+  "gpu: requires a CUDA GPU and externally supplied weights/data",
+  "simulation: requires the frozen MuJoCo tactile assets",
+]

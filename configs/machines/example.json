@@ -1,0 +1,7 @@
+{
+  "worker_python": "/path/to/simulation/environment/bin/python",
+  "dynamic_root": "/path/to/frozen/tactile-dynamic-checkout",
+  "raw_root": "/path/to/raw/episodes",
+  "timestamps_root": "/path/to/raw/timestamps",
+  "source_readouts": "/path/to/frozen/tactile-dynamic-checkout/readouts/picklift.npz"
+}

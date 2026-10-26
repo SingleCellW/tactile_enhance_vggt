@@ -1,0 +1,10 @@
+# Direct versions used for the CPU numerical/repository checks.
+# This is a constraints file, not a complete transitive environment lock.
+numpy==2.2.6
+pytest==8.4.2
+torch==2.9.1
+torchvision==0.24.1
+Pillow==11.3.0
+einops==0.8.1
+packaging==25.0
+matplotlib==3.10.8

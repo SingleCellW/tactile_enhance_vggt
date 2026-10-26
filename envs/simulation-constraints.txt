@@ -1,0 +1,6 @@
+# Historical native tactile worker; separate from the Python >=3.12 ACT env.
+# The caller must additionally supply its frozen tactile-sim dependencies/assets.
+numpy==2.2.6
+mujoco==3.4.0
+Pillow==11.3.0
+torch==2.9.1
