@@ -92,6 +92,8 @@ by Git does not make them disposable.
 ## Maintenance
 
 See [validation](docs/validation.md) for checks actually performed and their limits.
+The [CI workflow template](ci/README.md) is ready, but online activation awaits
+workflow permission ([#6](https://github.com/SingleCellW/tactile_enhance_vggt/issues/6)).
 Report problems using [issues](https://github.com/SingleCellW/tactile_enhance_vggt/issues)
 with a source commit, reproduction command, evidence and acceptance criteria.
 Follow [CONTRIBUTING.md](CONTRIBUTING.md): focused local commits, push the same

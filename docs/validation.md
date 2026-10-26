@@ -22,8 +22,10 @@ git diff --check
 ```
 
 Use a fresh shell output directory on each build. The builder deliberately refuses
-to overwrite previous evidence. CI runs the same CPU checks and clean portal build,
-then verifies that generated files did not dirty the source tree.
+to overwrite previous evidence. The prepared CI template runs the same CPU checks
+and clean portal build, then verifies source-tree cleanliness. It is not active:
+GitHub rejected workflow upload because the current token lacks `workflow` scope.
+See [activation instructions](../ci/README.md) and issue #6.
 
 ## Completed checks
 
@@ -72,5 +74,5 @@ were not run during maintenance. Scientific limitations remain in
 Portal rollback service-state recovery is tracked separately in
 [issue #4](https://github.com/SingleCellW/tactile_enhance_vggt/issues/4).
 
-Local checks are not a claim of GitHub Actions success; consult the PR's actual
-check status for the pushed commit.
+Local checks are not a claim of GitHub Actions success. No online run is claimed;
+activation and verification of an actual run remain tracked in issue #6.

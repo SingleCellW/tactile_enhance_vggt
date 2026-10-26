@@ -17,6 +17,7 @@ and modality controls remain required before expanding policy training.
 | [#3](https://github.com/SingleCellW/tactile_enhance_vggt/issues/3) | Contact-boundary and spatial-response evidence | Matched controls meeting declared spatial acceptance criteria |
 | [#4](https://github.com/SingleCellW/tactile_enhance_vggt/issues/4) | Portal rollback service state | Restore the prior enabled/active state and verify failure paths |
 | [#5](https://github.com/SingleCellW/tactile_enhance_vggt/issues/5) | Original-source license | Owner selection and consistent license metadata before release |
+| [#6](https://github.com/SingleCellW/tactile_enhance_vggt/issues/6) | Online CI activation | Workflow permission and an inspected GitHub Actions run |
 
 The existing [Stage 1.a](http://10.15.89.229:8766/reports/stage1a/) and
 [Stage 1.b](http://10.15.89.229:8766/reports/stage1b/) reports require the campus
