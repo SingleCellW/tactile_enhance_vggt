@@ -2,10 +2,32 @@ import importlib.util
 from pathlib import Path
 
 import numpy as np
+from argparse import Namespace
+import json
+import sys
 
 spec = importlib.util.spec_from_file_location("audit_geometry", Path(__file__).resolve().parents[1] / "scripts/audit_geometry.py")
 audit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(audit)
+
+
+def test_render_worker_uses_spec_without_requiring_machine_cli_paths(tmp_path, monkeypatch):
+    spec_path, output = tmp_path / "spec.json", tmp_path / "render.npz"
+    calls = []
+    monkeypatch.setattr(audit, "render_gt", lambda spec, dest: calls.append((spec, dest)))
+    monkeypatch.setattr(audit, "require_machine_arguments", lambda *args: (_ for _ in ()).throw(AssertionError("worker must use its spec")))
+    monkeypatch.setattr(sys, "argv", ["audit_geometry.py", "--render-spec", str(spec_path), "--render-output", str(output)])
+    audit.main()
+    assert calls == [(str(spec_path), str(output))]
+
+
+def test_render_spec_serializes_resolved_machine_paths(tmp_path):
+    args = Namespace(dynamic_root=tmp_path / "sim", raw_root=tmp_path / "raw", timestamps_root=tmp_path / "timestamps")
+    spec = audit.render_specification(args, tmp_path / "cache", [{"frame": 1}], 224)
+    destination = tmp_path / "spec.json"
+    audit.write_json(destination, spec)
+    assert json.loads(destination.read_text()) == spec
+    assert spec["dynamic_root"] == str(args.dynamic_root)
 
 
 def test_known_geometry_has_zero_error_and_camera_zero_is_invariant():

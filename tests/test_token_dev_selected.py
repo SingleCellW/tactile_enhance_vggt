@@ -91,6 +91,7 @@ def test_primary_gate_recognizes_actual_stage_schema_and_never_starts_early(tmp_
 
 @pytest.fixture
 def child_results(tmp_path):
+    tmp_path = tmp_path / "outputs"
     directories, selection, probes = {}, {}, {}
     cases, _ = dev.make_cases(1, 43)
     roles = {"act_role": "validation", "representation_role": "test"}
@@ -140,6 +141,25 @@ def test_merges_three_full_paired_children_and_keeps_budget_distinct(child_resul
     assert result["paired_comparisons"]["internal_minus_late"]["mean_difference"] == 1.
     assert result["paired_comparisons"]["internal_minus_visual"]["mean_difference"] == .5
     assert "wall" in result["scope"] and "Posthoc" in result["scope"]
+
+
+def test_merge_relocates_saved_sources_without_rewriting_or_weakening_hashes(child_results, tmp_path, monkeypatch):
+    from tactile_vggt import paths
+    directories, selection, probes, cases = child_results
+    old_root, new_root = tmp_path / "outputs", tmp_path / ".local/runs"
+    original_configs = {mode: (directory / "eval_config.json").read_bytes() for mode, directory in directories.items()}
+    new_root.parent.mkdir()
+    old_root.rename(new_root)
+    monkeypatch.setattr(paths, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("TACTILE_VGGT_ARTIFACT_ROOT", str(new_root.parent))
+    directories = {mode: new_root / directory.relative_to(old_root) for mode, directory in directories.items()}
+    selection = {mode: dev.select_checkpoint(new_root / Path(row["run"]).relative_to(old_root)) for mode, row in selection.items()}
+    probes = {mode: new_root / probe.relative_to(old_root) for mode, probe in probes.items()}
+    assert dev.merge_children(directories, selection, probes, "cache-sha", cases)["complete"]
+    assert all((directory / "eval_config.json").read_bytes() == original_configs[mode] for mode, directory in directories.items())
+    probes["visual"].write_bytes(b"changed checkpoint")
+    with pytest.raises(ValueError, match="checkpoint source mismatch"):
+        dev.merge_children(directories, selection, probes, "cache-sha", cases)
 
 
 @pytest.mark.parametrize("problem", ["partial", "seed", "cache"])

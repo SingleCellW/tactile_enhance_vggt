@@ -23,7 +23,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments, resolve_artifact_reference
 sys.path[:0] = [str(ROOT / "scripts")]
 from evaluate_sim import digest, write_json
 from evaluate_token_act import checkpoint_map, make_cases, paired_comparisons, summarize_mode, validate_policy_inputs
@@ -139,9 +139,9 @@ def merge_children(directories, selection, probes, cache_hash, expected_cases):
         source = config["modes"][mode]
         checkpoint = Path(selection[mode]["checkpoint"]).resolve(strict=True)
         probe = Path(probes[mode]).resolve(strict=True)
-        if (Path(source["policy"]).resolve(strict=True) != checkpoint or source["policy_sha256"] != selection[mode]["model_sha256"] or
+        if (resolve_artifact_reference(source["policy"]).resolve(strict=True) != checkpoint or source["policy_sha256"] != selection[mode]["model_sha256"] or
                 digest(checkpoint / "model.pt") != source["policy_sha256"] or
-                Path(source["probe"]).resolve(strict=True) != probe or source["probe_sha256"] != digest(probe)):
+                resolve_artifact_reference(source["probe"]).resolve(strict=True) != probe or source["probe_sha256"] != digest(probe)):
             raise ValueError(f"Child probe/policy checkpoint source mismatch: {mode}")
         roles = summary.get("source_split_roles")
         execution = config.get("execution_horizon")
