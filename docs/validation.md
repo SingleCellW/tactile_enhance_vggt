@@ -63,6 +63,15 @@ Raw test logs, JUnit output, build receipts and migration manifests live under
 `.local/maintenance/`, `.local/qa/` and `.local/migration/`; they are not tracked.
 This maintained document records the scope, rather than copying generated reports.
 
+## License follow-up
+
+After PR #7 merged, the owner selected Apache-2.0. The license follow-up rebuilt
+both wheel and source distribution with the pinned setuptools 78.1.0, verified
+`License-Expression: Apache-2.0`, and checked that LICENSE and NOTICE were included
+byte for byte. The standard license matched the system Apache-2.0 text; local
+documentation links and source boundaries passed. No algorithm or runtime code
+changed, so the numerical suite was not rerun for this metadata/documentation edit.
+
 ## Limits
 
 The CPU suite includes synthetic MuJoCo state checks, not the historical native

@@ -1,10 +1,10 @@
 # Third-party sources and assets
 
-The repository does not currently grant an explicit license for its original
-code. Owner selection is tracked in
+The owner selected **Apache-2.0** for this project's original code on 2026-10-26.
+The standard license is in [LICENSE](../LICENSE), with attribution in
+[NOTICE](../NOTICE). Package and citation metadata use the same SPDX identifier.
+The decision and delivery are tracked in
 [issue #5](https://github.com/SingleCellW/tactile_enhance_vggt/issues/5).
-Maintenance preserves the existing authorization state; public visibility alone
-is not presented as an open-source license.
 
 The source lock records URLs and full commit IDs for LeRobot and VGGT.
 `external/` contains ignored local symlinks. Bootstrap verifies revision and a
@@ -19,5 +19,5 @@ Historical tactile code, robot URDF/mesh assets and demonstrations are not bundl
 or automatically downloaded. Their distribution scope and independent retrieval
 remain tracked in [issue #2](https://github.com/SingleCellW/tactile_enhance_vggt/issues/2).
 
-Any license selected for this repository's original code does not relicense
+The Apache-2.0 license for this repository's original code does not relicense
 dependencies, model weights, datasets or external assets.

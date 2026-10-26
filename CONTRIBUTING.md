@@ -1,5 +1,9 @@
 # Contributing
 
+Original project contributions use [Apache-2.0](LICENSE). Preserve applicable
+third-party attribution and document external material's separate terms; the
+project license does not relicense downloaded code, models or assets.
+
 Use one source tree under `src/tactile_vggt`. Keep distinct research baselines and
 select them through configuration. Do not maintain dated or `final_v2` copies of
 the same implementation. Git commits record code versions; run IDs record experiments.
