@@ -30,8 +30,6 @@ python scripts/doctor.py --profile train
 PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 python -m pytest tests -q
 ```
 
-While the maintenance PR is open, check out `chore/repository-standardization`
-after cloning; `main` receives this layout only when the PR is merged.
 [Environment details](envs/README.md) distinguish core, CPU verification, CUDA
 training and the separate simulation worker environment.
 
@@ -104,3 +102,9 @@ Please cite this repository via [CITATION.cff](CITATION.cff) and credit upstream
 [LeRobot](https://github.com/huggingface/lerobot) separately. Third-party source,
 weights and historical robot/data assets retain their own terms;
 see [third-party notes](docs/third_party.md).
+
+## License
+
+Original project code is licensed under [Apache-2.0](LICENSE).
+See [NOTICE](NOTICE) for attribution. This license does not replace the terms
+of separately obtained LeRobot/VGGT source, model weights, datasets or robot assets.
