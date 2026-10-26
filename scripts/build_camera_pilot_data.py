@@ -22,7 +22,9 @@ os.environ.setdefault("MUJOCO_GL", "egl")
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(Path(__file__).resolve().parent)]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, machine_path
+sys.path[:0] = [str(Path(__file__).resolve().parent)]
 from build_token_pilot_data import SnapshotBuilder, fingerprint, write_json
 from tactile_vggt.geometry import world_to_base
 from tactile_vggt.simulation import CAMERAS, load_frozen_model
@@ -472,7 +474,7 @@ def main():
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--dynamic-root", type=Path, required=True)
     parser.add_argument("--raw-root", type=Path, required=True)
-    parser.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
+    parser.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seed", type=int, default=20261026)
     parser.add_argument("--near-views", type=int, default=3)

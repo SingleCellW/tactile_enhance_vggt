@@ -25,6 +25,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, machine_path
 from tactile_vggt.geometry import world_to_base
 from tactile_vggt.simulation import CAMERAS, NativeTactileAdapter, load_frozen_model, training_rgb_transform
 
@@ -417,7 +418,7 @@ def main():
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--dynamic-root", type=Path, required=True)
     parser.add_argument("--raw-root", type=Path, required=True)
-    parser.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
+    parser.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--seed", type=int, default=20261025)

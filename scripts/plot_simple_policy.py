@@ -4,6 +4,8 @@ import argparse
 import json
 from pathlib import Path
 
+from tactile_vggt.paths import artifact_path
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -57,5 +59,5 @@ def draw(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report", type=Path, default=ROOT / "reports/simple_policy_followup_20261025")
+    parser.add_argument("--report", type=Path, default=artifact_path('reports', 'simple_policy_followup_20261025'))
     draw(parser.parse_args())

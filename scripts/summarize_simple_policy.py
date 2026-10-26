@@ -13,6 +13,8 @@ from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 from statistics import NormalDist
 import sys
 from zoneinfo import ZoneInfo
@@ -368,7 +370,7 @@ def summarize(args):
                 value["same_checkpoint_verified"] = same
                 if not same:
                     value.update(complete=False, success_rate_difference=None, ci95=None)
-    bbox_path = ROOT / "reports/token_pilot_20261025/initial_support_audit.json"
+    bbox_path = artifact_path('reports', 'token_pilot_20261025/initial_support_audit.json')
     bbox = read(bbox_path, sources)
     coverage = {"source": str(bbox_path), "scope": "initial XY bbox only; not full ID",
                 "nominal_separate": True, "grid_within": 12, "grid_outside": 24}
@@ -434,6 +436,6 @@ def summarize(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=ROOT / "outputs/simple_policy_followup_20261025")
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/simple_policy_followup_20261025")
+    parser.add_argument("--input", type=Path, default=artifact_path('outputs', 'simple_policy_followup_20261025'))
+    parser.add_argument("--output", type=Path, default=artifact_path('reports', 'simple_policy_followup_20261025'))
     summarize(parser.parse_args())

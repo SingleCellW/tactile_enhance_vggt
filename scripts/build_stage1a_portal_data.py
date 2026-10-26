@@ -14,11 +14,13 @@ import hashlib
 import json
 import math
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path, artifact_root
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 SIMPLE = "reports/simple_policy_followup_20261025"
-EXPERIMENT = "outputs/simple_policy_followup_20261025"
+EXPERIMENT = "runs/simple_policy_followup_20261025"
 TOKEN = "reports/token_pilot_20261025"
 MODES = ("frozen_zero", "frozen_pressure", "joint_zero", "joint_pressure")
 SUBSETS = ("grid36", "within_bbox12", "outside24", "nominal")
@@ -133,7 +135,8 @@ def selection_evidence(source, mode, report):
             "frozen_projection_parity": report.get("frozen_projection_parity"), "source_ids": ids}
 
 
-def build(root=ROOT):
+def build(root=None):
+    root = Path(root) if root is not None else artifact_root()
     source = Sources(root)
     simple = source.json("simple_results", f"{SIMPLE}/results.json")
     failure = source.json("failure_stages", f"{SIMPLE}/failure_stages.json")
@@ -356,8 +359,9 @@ def write_exports(result, directory):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repository-root", type=Path, default=ROOT)
-    parser.add_argument("--output", type=Path, default=ROOT / "portal/data/stage1a.json")
+    parser.add_argument("--artifact-root", "--repository-root", dest="repository_root", type=Path, default=artifact_root(),
+                        help="Root containing reports/ and runs/; old flag retained as an alias")
+    parser.add_argument("--output", type=Path, default=artifact_path('site', 'data/stage1a.json'))
     args = parser.parse_args()
     result = build(args.repository_root)
     args.output.parent.mkdir(parents=True, exist_ok=True)

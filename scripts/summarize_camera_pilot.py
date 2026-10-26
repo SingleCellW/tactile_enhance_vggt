@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 import sys
 
 import numpy as np
@@ -480,8 +482,8 @@ def make_plots(result, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=ROOT / "outputs/camera_pilot_20261026/main_2000")
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/camera_pilot_20261026")
+    parser.add_argument("--input", type=Path, default=artifact_path('outputs', 'camera_pilot_20261026/main_2000'))
+    parser.add_argument("--output", type=Path, default=artifact_path('reports', 'camera_pilot_20261026'))
     parser.add_argument("--budget-decision", type=Path, help="Original seed43-only 2000-step convergence.json if a 4000-step round was triggered")
     parser.add_argument("--displacement-weight", type=float, default=0., help="Keep optional objective follow-up in a separate input/output; primary is zero")
     parser.add_argument("--plots", action="store_true")

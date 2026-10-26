@@ -12,6 +12,8 @@ import hashlib
 import json
 import math
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -183,8 +185,8 @@ def self_test():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=ROOT / "outputs/token_pilot_20261025/closed_loop36/summary.json")
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/token_pilot_20261025/policy_xy_grid.png")
+    parser.add_argument("--input", type=Path, default=artifact_path('outputs', 'token_pilot_20261025/closed_loop36/summary.json'))
+    parser.add_argument("--output", type=Path, default=artifact_path('reports', 'token_pilot_20261025/policy_xy_grid.png'))
     parser.add_argument("--act-seed", type=int, default=43, help="ACT training seed label for this declared campaign")
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()

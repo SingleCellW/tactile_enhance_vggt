@@ -24,7 +24,10 @@ import traceback
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "lerobot" / "src")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import dependency_path
+from tactile_vggt.provenance import write_run_manifest
+sys.path[:0] = [str(dependency_path("lerobot") / "src")]
 
 import numpy as np
 import torch
@@ -129,6 +132,7 @@ def run(args):
     if any((output / name).exists() for name in ("train_config.json", "status.json", "metrics.jsonl", "checkpoints")):
         raise ValueError(f"Output already contains a run; choose a fresh directory: {output}")
     source = json.loads(Path(args.config).read_text())
+    write_run_manifest(output, args)
     random.seed(args.seed)
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)

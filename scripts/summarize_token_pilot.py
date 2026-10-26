@@ -15,6 +15,8 @@ import hashlib
 import json
 import math
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 from statistics import mean, stdev
 from zoneinfo import ZoneInfo
 
@@ -436,9 +438,9 @@ def summarize(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=ROOT / "outputs/token_pilot_20261025")
-    parser.add_argument("--data-artifacts", type=Path, default=ROOT / "artifacts/token_pilot_data_20261025")
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/token_pilot_20261025")
+    parser.add_argument("--input", type=Path, default=artifact_path('outputs', 'token_pilot_20261025'))
+    parser.add_argument("--data-artifacts", type=Path, default=artifact_path('artifacts', 'token_pilot_data_20261025'))
+    parser.add_argument("--output", type=Path, default=artifact_path('reports', 'token_pilot_20261025'))
     parser.add_argument("--plots", action="store_true")
     parser.add_argument("--include-screening", action="store_true")
     summarize(parser.parse_args())

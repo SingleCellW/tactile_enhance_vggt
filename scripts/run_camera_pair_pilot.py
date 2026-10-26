@@ -22,7 +22,10 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path
+from tactile_vggt.provenance import write_run_manifest, source_hashes
+sys.path[:0] = [str(ROOT / "scripts")]
 from tactile_vggt.camera_pilot import CameraArrays, evaluate_predictions, episode_summary
 from tactile_vggt.token_fusion import TokenFusionProbe
 from run_camera_pilot import Batches, autocast, predict, restore, small_state, validate
@@ -106,23 +109,11 @@ def initialization_digest(model):
 
 
 def snapshot_sources(output):
-    directory = output / "implementation"
-    directory.mkdir(exist_ok=True)
+    """Compatibility name: retain source hashes, without creating copies."""
     paths = [Path(__file__), ROOT / "scripts/run_camera_pilot.py", ROOT / "scripts/run_token_pilot.py",
              ROOT / "src/tactile_vggt/camera_pilot.py", ROOT / "src/tactile_vggt/token_fusion.py",
-             ROOT / "src/tactile_vggt/token_metrics.py"]
-    result = {}
-    for source in paths:
-        target = directory / source.name
-        digest = sha(source)
-        if target.exists() and sha(target) != digest:
-            raise ValueError("Output source snapshot differs; use a new output: " + source.name)
-        if not target.exists():
-            temporary = target.with_name(f".{target.name}.partial-{os.getpid()}")
-            temporary.write_bytes(source.read_bytes())
-            temporary.replace(target)
-        result[source.name] = digest
-    return result
+             ROOT / "src/tactile_vggt/token_metrics.py", ROOT / "src/tactile_vggt/experiment_utils.py"]
+    return source_hashes(paths)
 
 
 def run_signature(args, data, seed, regime, mode, provenance):
@@ -301,6 +292,7 @@ def train(args):
     data = CameraArrays(args.data)
     root_output = args.output
     root_output.mkdir(parents=True, exist_ok=True)
+    write_run_manifest(root_output, args)
     protocol = {"format_version": 1, "conditional_followup": True, "batch_scheme": BATCH_SCHEME,
         "steps": args.steps, "modes": list(MODES), "objectives": list(OBJECTIVES), "seeds": [43, 44, 45],
         "learning_rate": args.learning_rate, "eval_every": args.eval_every, "hidden_dim": args.hidden_dim,
@@ -340,7 +332,7 @@ def train(args):
             "environment_record": str(env_path.relative_to(run_args.output)),
             "helper_sha256": sha(ROOT / "src/tactile_vggt/camera_pilot.py"),
             "token_fusion_sha256": sha(ROOT / "src/tactile_vggt/token_fusion.py"),
-            "source_snapshots": snapshot_sources(run_args.output)}
+            "source_hashes": snapshot_sources(run_args.output)}
         runs = []
         for seed in args.seeds:
             for mode in args.modes:
@@ -366,9 +358,9 @@ def main():
     parser.add_argument("command", choices=["train", "evaluate"])
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--prefix", type=Path, required=True)
-    parser.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    parser.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
-    parser.add_argument("--output", type=Path, default=ROOT / "outputs/camera_pair_pilot_20261026")
+    parser.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    parser.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
+    parser.add_argument("--output", type=Path, default=artifact_path("outputs") / "camera_pair_pilot_20261026")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--image-size", type=int, default=224)
     parser.add_argument("--batch-size", type=int, default=32)

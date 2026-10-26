@@ -4,7 +4,7 @@
 All ACT runs retain their completed 6000-update training budget. Checkpoints
 are selected only by first minimum held-out action L1, never rollout outcomes.
 The primary fixed-6000 evaluation is neither modified nor replaced. Concurrent
-single-probe children share GPU0; their wall times are not comparable with the
+single-probe children share the caller's selected GPU; their wall times are not comparable with the
 primary three-probe evaluation or with one another as isolated inference costs.
 """
 from __future__ import annotations
@@ -22,7 +22,9 @@ import time
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(ROOT / "scripts")]
 from evaluate_sim import digest, write_json
 from evaluate_token_act import checkpoint_map, make_cases, paired_comparisons, summarize_mode, validate_policy_inputs
 
@@ -181,7 +183,7 @@ def merge_children(directories, selection, probes, cache_hash, expected_cases):
 
 def run_children(args, commands):
     environment = os.environ.copy()
-    environment.update(CUDA_VISIBLE_DEVICES="0", MUJOCO_EGL_DEVICE_ID="0", OMP_NUM_THREADS="4")
+    environment.setdefault("OMP_NUM_THREADS", "4")
     pending, active, completed, streams, spawned = list(MODES), {}, {}, [], []
     started = time.monotonic()
     finished = False
@@ -255,19 +257,26 @@ def run(args):
         validate_policy_inputs(mode, Path(selection[mode]["checkpoint"]), probes[mode], cache_hash, metadata["normalization"])
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / "logs").mkdir(exist_ok=True)
-    commands = child_commands(args, runs, probes, selection)
-    config = {"protocol": "posthoc_dev_selected36_sensitivity_v1", "scope": SCOPE, "selection": selection,
-              "primary_completion": primary, "cache_manifest_sha256": cache_hash, "workers": args.workers,
-              "gpu_environment": {"CUDA_VISIBLE_DEVICES": "0", "MUJOCO_EGL_DEVICE_ID": "0"},
-              "commands": commands, "implementation_sha256": digest(__file__)}
     config_path = args.output / "run_config.json"
-    if config_path.exists():
-        if not (args.resume or args.merge_only) or json.loads(config_path.read_text()) != config:
-            raise ValueError("Secondary output exists or its protocol changed; use a fresh output")
+    if args.merge_only:
+        if not config_path.is_file():
+            raise ValueError("Merge requires an existing saved run config")
+        config = json.loads(config_path.read_text())
+        validate_merge_configuration(config, selection, cache_hash, primary)
+        commands = None
     else:
-        if args.resume or args.merge_only:
-            raise ValueError("Resume/merge requires an existing matching secondary run config")
-        write_json(config_path, config)
+        commands = child_commands(args, runs, probes, selection)
+        config = {"protocol": "posthoc_dev_selected36_sensitivity_v1", "scope": SCOPE, "selection": selection,
+                  "primary_completion": primary, "cache_manifest_sha256": cache_hash, "workers": args.workers,
+                  "gpu_environment": {key: os.environ.get(key) for key in ("CUDA_VISIBLE_DEVICES", "MUJOCO_EGL_DEVICE_ID")},
+                  "commands": commands, "implementation_sha256": digest(__file__)}
+        if config_path.exists():
+            if not args.resume or json.loads(config_path.read_text()) != config:
+                raise ValueError("Secondary output exists or its protocol changed; use a fresh output")
+        else:
+            if args.resume:
+                raise ValueError("Resume requires an existing matching secondary run config")
+            write_json(config_path, config)
     child_processes = None if args.merge_only else run_children(args, commands)
     cases, _ = make_cases(args.episode, args.seed)
     directories = {mode: args.output / "mode_runs" / mode for mode in MODES}
@@ -278,9 +287,24 @@ def run(args):
     return summary
 
 
+def validate_merge_configuration(saved, selection, cache_hash, primary):
+    """Merging checks saved scientific evidence, not today's GPU or worker paths."""
+    if (saved.get("protocol") != "posthoc_dev_selected36_sensitivity_v1" or saved.get("scope") != SCOPE
+            or saved.get("cache_manifest_sha256") != cache_hash
+            or saved.get("primary_completion", {}).get("sha256") != primary.get("sha256")
+            or set(saved.get("selection", {})) != set(selection)):
+        raise ValueError("Saved merge protocol or input evidence changed")
+    location_fields = {"run", "checkpoint", "best_link_target"}
+    for mode, selected in selection.items():
+        before = {key: value for key, value in saved["selection"][mode].items() if key not in location_fields}
+        after = {key: value for key, value in selected.items() if key not in location_fields}
+        if before != after:
+            raise ValueError(f"Saved checkpoint selection evidence changed: {mode}")
+
+
 def parser():
     result = argparse.ArgumentParser(description=__doc__)
-    base = ROOT / "outputs/token_pilot_20261025"
+    base = artifact_path("outputs") / "token_pilot_20261025"
     result.add_argument("--input", type=Path, default=base)
     result.add_argument("--output", type=Path, default=base / "dev_selected36")
     result.add_argument("--primary-status", type=Path, default=base / "pipeline_status.json")
@@ -291,27 +315,29 @@ def parser():
     result.add_argument("--child-timeout", type=float, default=86400.)
     result.add_argument("--act-run", action="append", help="mode=original-training-run")
     result.add_argument("--probe-checkpoint", action="append", help="mode=representation-best.pt")
-    result.add_argument("--cache", type=Path, default=ROOT / "cache/pickplace_vggt_native_physics_dt01_stride4")
-    result.add_argument("--representation-manifest", type=Path, default=ROOT / "artifacts/token_pilot_data_20261025/manifest.json")
-    result.add_argument("--python", type=Path, default=ROOT / ".venv/bin/python")
-    result.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    result.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
+    result.add_argument("--cache", type=Path, default=artifact_path("cache") / "pickplace_vggt_native_physics_dt01_stride4")
+    result.add_argument("--representation-manifest", type=Path, default=artifact_path("artifacts") / "token_pilot_data_20261025/manifest.json")
+    result.add_argument("--python", type=Path, default=Path(sys.executable))
+    result.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    result.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
     result.add_argument("--episode", type=int, default=1)
     result.add_argument("--seed", type=int, default=43)
     result.add_argument("--amp", choices=["float32", "bfloat16"], default="bfloat16")
-    result.add_argument("--worker-python", type=Path, default=Path("/home/wukf/miniforge3/envs/te/bin/python"))
-    result.add_argument("--dynamic-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921"))
-    result.add_argument("--raw-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212"))
-    result.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
-    result.add_argument("--source-readouts", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/readouts/picklift.npz"))
+    result.add_argument("--worker-python", type=Path, default=machine_path("worker_python", default=sys.executable))
+    result.add_argument("--dynamic-root", type=Path, default=machine_path("dynamic_root"))
+    result.add_argument("--raw-root", type=Path, default=machine_path("raw_root"))
+    result.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
+    result.add_argument("--source-readouts", type=Path, default=machine_path("source_readouts"))
     result.add_argument("--trace-every", type=int, default=20)
     result.add_argument("--resume", action="store_true")
     result.add_argument("--merge-only", action="store_true")
     return result
 
 
-if __name__ == "__main__":
+def main():
     args = parser().parse_args()
+    if not args.merge_only:
+        require_machine_arguments(args, 'worker_python', 'dynamic_root', 'raw_root', 'source_readouts', 'timestamps_root')
     def stop(signum, frame):
         raise SystemExit(128 + signum)
     signal.signal(signal.SIGTERM, stop)
@@ -321,3 +347,7 @@ if __name__ == "__main__":
         args.output.mkdir(parents=True, exist_ok=True)
         write_json(args.output / "failure.json", {"complete": False, "error": str(error), "scope": SCOPE})
         raise
+
+
+if __name__ == "__main__":
+    main()

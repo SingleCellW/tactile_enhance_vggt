@@ -16,59 +16,13 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
-from token_runtime import LiveTokenEncoder, _Captured
-from run_token_pilot import dump, sha
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path
+sys.path[:0] = [str(ROOT / "scripts")]
+from tactile_vggt.experiment_utils import dump, sha
 
 
-class SimpleVisualRuntime:
-    def __init__(self, repository, weights, visual_probe_checkpoint, device="cuda:0"):
-        self.base = LiveTokenEncoder(repository, weights, {"visual": visual_probe_checkpoint}, device)
-        if self.base.probes["visual"].mode != "visual":
-            raise ValueError("The source checkpoint must be the touch-free visual probe")
-        self.device = device
-
-    @torch.inference_mode()
-    def encode(self, rgb, state):
-        rgb, state = np.asarray(rgb), np.asarray(state)
-        if rgb.ndim == 4:
-            rgb, state = rgb[None], state[None]
-        b, views = rgb.shape[:2]
-        if rgb.shape[2:] != (224, 224, 3) or views != 2 or state.shape != (b, 22):
-            raise ValueError("Require synchronized RGB224 stereo and state22")
-        captured = {}
-
-        def capture(module, inputs, kwargs):
-            captured["tokens"] = inputs[0]
-            captured["pos"] = kwargs.get("pos", inputs[1] if len(inputs) > 1 else None)
-            raise _Captured
-
-        block = self.base.backbone.aggregator.global_blocks[-1]
-        handle = block.register_forward_pre_hook(capture, with_kwargs=True)
-        images = torch.as_tensor(rgb, device=self.device).permute(0, 1, 4, 2, 3).float() / 255
-        try:
-            with torch.autocast("cuda", dtype=torch.bfloat16, enabled=str(self.device).startswith("cuda")):
-                try:
-                    self.base.backbone.aggregator(images)
-                except _Captured:
-                    pass
-        finally:
-            handle.remove()
-        # Match the original frozen-prefix cache, including its FP16 roundtrip.
-        prefix = captured["tokens"].to(torch.float16).float()
-        pos = captured["pos"]
-        saved = self.base.stats["visual"]
-        normalized = (state - np.asarray(saved["state_mean"])) / np.asarray(saved["state_std"])
-        probe = self.base.probes["visual"]
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=str(self.device).startswith("cuda")):
-            tokens = block(prefix, pos=pos).reshape(b, views, -1, 1024)
-            pooled = tokens[:, :, 5:].mean(dim=(1, 2))
-            state_features = probe.state_encoder(torch.as_tensor(normalized, device=self.device, dtype=torch.float32))
-            combined = torch.cat((pooled.to(state_features.dtype), state_features), dim=-1)
-        return combined.float().cpu().numpy()
-
-    def encode_observation(self, observation):
-        return self.encode(observation["rgb"], observation["state"])[0]
+from tactile_vggt.runtime import SimpleVisualRuntime
 
 
 def export_inputs(args):
@@ -135,8 +89,8 @@ if __name__ == "__main__":
     p.add_argument("--cache", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--visual-probe", type=Path, required=True)
-    p.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    p.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
+    p.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    p.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
     p.add_argument("--reference-features", type=Path)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--batch-size", type=int, default=4)

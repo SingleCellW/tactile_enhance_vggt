@@ -22,7 +22,9 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "lerobot/src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(dependency_path("lerobot") / "src"), str(ROOT / "scripts")]
 from evaluate_sim import SimulationClient, digest, read_observation, timing_stats, write_json
 from tactile_vggt.token_metrics import paired_group_bootstrap
 
@@ -387,15 +389,15 @@ def parser():
     result.add_argument("--output", required=True, type=Path)
     result.add_argument("--representation-manifest", type=Path)
     result.add_argument("--episode", type=int, help="Default: prefer episode1 in ACT-val / representation-test overlap")
-    result.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    result.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
+    result.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    result.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
     result.add_argument("--device", default="cuda:0")
     result.add_argument("--amp", choices=["bfloat16", "float32"], default="bfloat16")
-    result.add_argument("--worker-python", type=Path, default=Path("/home/wukf/miniforge3/envs/te/bin/python"))
-    result.add_argument("--dynamic-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921"))
-    result.add_argument("--raw-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212"))
-    result.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
-    result.add_argument("--source-readouts", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/readouts/picklift.npz"))
+    result.add_argument("--worker-python", type=Path, default=machine_path("worker_python", default=sys.executable))
+    result.add_argument("--dynamic-root", type=Path, default=machine_path("dynamic_root"))
+    result.add_argument("--raw-root", type=Path, default=machine_path("raw_root"))
+    result.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
+    result.add_argument("--source-readouts", type=Path, default=machine_path("source_readouts"))
     result.add_argument("--seed", type=int, default=43)
     result.add_argument("--case-limit", type=int, help="Predetermined prefix for smoke testing; use fresh output for all36")
     result.add_argument("--trace-every", type=int, default=20)
@@ -408,6 +410,7 @@ def parser():
 
 if __name__ == "__main__":
     arguments = parser().parse_args()
+    require_machine_arguments(arguments, 'worker_python', 'dynamic_root', 'raw_root', 'source_readouts', 'timestamps_root')
     if arguments.trace_every < 1 or arguments.worker_timeout <= 0:
         raise ValueError("Positive trace interval and worker timeout required")
     try:

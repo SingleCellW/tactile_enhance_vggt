@@ -24,7 +24,9 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(ROOT / "scripts")]
 from evaluate_sim import SimulationClient, digest, timing_stats, write_json
 from evaluate_token_act import make_cases, score_trajectory
 
@@ -279,16 +281,16 @@ def run(args):
 def parser():
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--cache", type=Path, required=True)
-    result.add_argument("--output", type=Path, default=ROOT / "outputs/token_pilot_20261025/command_replay_reference")
+    result.add_argument("--output", type=Path, default=artifact_path("outputs") / "token_pilot_20261025/command_replay_reference")
     result.add_argument("--episode", type=int, default=1)
     result.add_argument("--seed", type=int, default=43)
     result.add_argument("--case-limit", type=int, help="Predeclared prefix, including nominal first; omit for all37")
     result.add_argument("--device", choices=["cpu"], default="cpu", help="No VGGT/ACT or GPU model forward")
-    result.add_argument("--worker-python", type=Path, default=Path("/home/wukf/miniforge3/envs/te/bin/python"))
-    result.add_argument("--dynamic-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921"))
-    result.add_argument("--raw-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212"))
-    result.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
-    result.add_argument("--source-readouts", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/readouts/picklift.npz"))
+    result.add_argument("--worker-python", type=Path, default=machine_path("worker_python", default=sys.executable))
+    result.add_argument("--dynamic-root", type=Path, default=machine_path("dynamic_root"))
+    result.add_argument("--raw-root", type=Path, default=machine_path("raw_root"))
+    result.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
+    result.add_argument("--source-readouts", type=Path, default=machine_path("source_readouts"))
     result.add_argument("--trace-every", type=int, default=20)
     result.add_argument("--worker-timeout", type=float, default=120.)
     result.add_argument("--resume", action="store_true")
@@ -297,6 +299,7 @@ def parser():
 
 if __name__ == "__main__":
     arguments = parser().parse_args()
+    require_machine_arguments(arguments, 'worker_python', 'dynamic_root', 'raw_root', 'source_readouts', 'timestamps_root')
     try:
         run(arguments)
     except Exception as error:

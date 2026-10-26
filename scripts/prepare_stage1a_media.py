@@ -15,6 +15,8 @@ import hashlib
 import json
 import math
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 import shlex
 import shutil
 import struct
@@ -24,7 +26,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 URL_ROOT = "/reports/stage1a/media"
-REMOTE_ROOT = "/home/wukf/projects/tactile_enhance_vggt"
+REMOTE_ROOT = None
 
 
 def selections():
@@ -290,13 +292,15 @@ def prepare(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--download", action="store_true", help="Fetch only the eight fixed source recordings and evidence via authorized SSH")
-    parser.add_argument("--remote-host", default="rimlab-server")
+    parser.add_argument("--remote-host", help="SSH alias; required only with --download")
     parser.add_argument("--remote-root", default=REMOTE_ROOT)
-    parser.add_argument("--source-cache", type=Path, default=Path("/tmp/stage1a_media_sources"))
-    parser.add_argument("--output", type=Path, default=ROOT / "portal/reports/stage1a/media")
-    parser.add_argument("--ffmpeg", default=shutil.which("ffmpeg") or "/home/cellw/miniforge3/envs/te/bin/ffmpeg")
-    parser.add_argument("--ffprobe", default=shutil.which("ffprobe") or "/home/cellw/miniforge3/envs/te/bin/ffprobe")
+    parser.add_argument("--source-cache", type=Path, default=artifact_path("cache", "stage1a_media_sources"))
+    parser.add_argument("--output", type=Path, default=artifact_path('site', 'reports/stage1a/media'))
+    parser.add_argument("--ffmpeg", default=shutil.which("ffmpeg") or "ffmpeg")
+    parser.add_argument("--ffprobe", default=shutil.which("ffprobe") or "ffprobe")
     args = parser.parse_args()
+    if args.download and (not args.remote_host or not args.remote_root):
+        parser.error("--download requires explicit --remote-host and --remote-root")
     prepare(args)
 
 

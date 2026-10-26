@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Run the predeclared A40 GPU0 Stage1.b campaign with durable status.
+"""Run the predeclared Stage1.b campaign on the caller's allocated GPU.
 
 Only development curves determine the common budget. Inference on held-out
 tests starts after this decision. Each subprocess has a separate log.
 """
 from __future__ import annotations
 
+import argparse
 import fcntl
 import json
 import os
@@ -16,6 +17,8 @@ import time
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path
 
 
 def write(path, value):
@@ -25,20 +28,27 @@ def write(path, value):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=artifact_path("runs", "camera_pilot_20261026"))
+    parser.add_argument("--logs", type=Path, default=artifact_path("logs", "camera_pilot_20261026"))
+    parser.add_argument("--data", type=Path, default=artifact_path("artifacts", "camera_pilot_data_20261026"))
+    parser.add_argument("--prefix", type=Path, default=artifact_path("artifacts", "camera_pilot_prefix_20261026"))
+    parser.add_argument("--python", type=Path, default=Path(sys.executable))
+    args = parser.parse_args()
     root = ROOT
-    output = root / "outputs/camera_pilot_20261026"
-    logs = root / "logs/camera_pilot_20261026"
+    output, logs = args.output, args.logs
     output.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     with (output / "campaign.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         status = {"complete": False, "pid": os.getpid(), "started_unix": time.time(), "stages": [],
-                  "resource": "rimlab-server / physical A40 GPU0", "test_used_for_budget": False}
+                  "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"), "test_used_for_budget": False}
         env = os.environ.copy()
-        env.update(CUDA_VISIBLE_DEVICES="0", OMP_NUM_THREADS="4", OPENBLAS_NUM_THREADS="4")
-        python = str(root / ".venv/bin/python")
-        common = [python, "-u", "scripts/run_camera_pilot.py", "train", "--data", "artifacts/camera_pilot_data_20261026",
-                  "--prefix", "artifacts/camera_pilot_prefix_20261026", "--batch-size", "32", "--eval-every", "200",
+        env.setdefault("OMP_NUM_THREADS", "4")
+        env.setdefault("OPENBLAS_NUM_THREADS", "4")
+        python = str(args.python)
+        common = [python, "-u", "scripts/run_camera_pilot.py", "train", "--data", str(args.data),
+                  "--prefix", str(args.prefix), "--batch-size", "32", "--eval-every", "200",
                   "--learning-rate", "0.0001"]
 
         def run(name, command):

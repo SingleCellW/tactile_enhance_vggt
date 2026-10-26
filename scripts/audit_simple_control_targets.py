@@ -19,6 +19,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, machine_path, require_machine_arguments
 from tactile_vggt.simulation import load_frozen_model
 
 
@@ -221,14 +222,15 @@ def audit(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--dynamic-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921"))
-    parser.add_argument("--cache", type=Path, default=ROOT / "cache/pickplace_vggt_native_physics_dt01_stride4")
-    parser.add_argument("--experiment-root", type=Path, default=ROOT / "outputs/simple_policy_followup_20261025")
-    parser.add_argument("--reference", type=Path, default=ROOT / "outputs/token_pilot_20261025/command_replay_reference/nominal")
+    parser.add_argument("--dynamic-root", type=Path, default=machine_path("dynamic_root"))
+    parser.add_argument("--cache", type=Path, default=artifact_path("cache") / "pickplace_vggt_native_physics_dt01_stride4")
+    parser.add_argument("--experiment-root", type=Path, default=artifact_path("outputs") / "simple_policy_followup_20261025")
+    parser.add_argument("--reference", type=Path, default=artifact_path("outputs") / "token_pilot_20261025/command_replay_reference/nominal")
     parser.add_argument("--modes", nargs="+", default=["frozen_zero", "frozen_pressure", "joint_zero"])
     parser.add_argument("--max-ticks", type=int, default=30)
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/simple_policy_followup_20261025/control_target_audit.json")
+    parser.add_argument("--output", type=Path, default=artifact_path("reports") / "simple_policy_followup_20261025/control_target_audit.json")
     args = parser.parse_args()
+    require_machine_arguments(args, 'dynamic_root')
     if not 1 <= args.max_ticks <= 30 or len(set(args.modes)) != len(args.modes):
         raise ValueError("Use 1..30 early ticks and unique policy modes")
     result = audit(args)

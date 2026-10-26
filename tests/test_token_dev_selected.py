@@ -19,6 +19,28 @@ def save(path, value):
     path.write_text(json.dumps(value))
 
 
+def test_merge_cli_does_not_require_simulator_or_old_venv(monkeypatch):
+    calls = []
+    monkeypatch.setattr(sys, "argv", ["evaluate_token_dev_selected.py", "--merge-only"])
+    monkeypatch.setattr(dev, "run", lambda args: calls.append(args))
+    monkeypatch.setattr(dev.signal, "signal", lambda *args: None)
+    monkeypatch.setattr(dev, "require_machine_arguments", lambda *args: (_ for _ in ()).throw(AssertionError("merge must not launch simulator")))
+    dev.main()
+    assert calls[0].merge_only and calls[0].python == Path(sys.executable)
+
+
+def test_merge_accepts_relocated_selection_but_rejects_changed_evidence():
+    selection = {"visual": {"checkpoint": "/new/path", "model_sha256": "model", "selected_step": 1000}}
+    saved = {"protocol": "posthoc_dev_selected36_sensitivity_v1", "scope": dev.SCOPE,
+             "cache_manifest_sha256": "cache", "primary_completion": {"sha256": "primary"},
+             "selection": {"visual": {**selection["visual"], "checkpoint": "/old/path"}},
+             "gpu_environment": {"CUDA_VISIBLE_DEVICES": "old-machine"}}
+    dev.validate_merge_configuration(saved, selection, "cache", {"sha256": "primary"})
+    selection["visual"]["model_sha256"] = "different-model"
+    with pytest.raises(ValueError, match="selection evidence"):
+        dev.validate_merge_configuration(saved, selection, "cache", {"sha256": "primary"})
+
+
 def training_run(path):
     save(path / "train_config.json", {"steps": 6000, "eval_every": 1000, "policy": {}, "seed": 43,
                                       "batch_size": 64, "learning_rate": 1e-5, "weight_decay": 1e-4,
@@ -141,11 +163,12 @@ def test_merge_rejects_partial_unpaired_or_wrong_source_children(child_results, 
 
 def test_child_failure_terminates_and_reaps_all_owned_process_groups(tmp_path, monkeypatch):
     (tmp_path / "logs").mkdir()
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "GPU-allocated-by-scheduler")
     processes, killed = [], []
 
     class Process:
         def __init__(self, command, **kwargs):
-            assert kwargs["start_new_session"] and kwargs["env"]["CUDA_VISIBLE_DEVICES"] == "0"
+            assert kwargs["start_new_session"] and kwargs["env"]["CUDA_VISIBLE_DEVICES"] == "GPU-allocated-by-scheduler"
             self.pid, self.returncode, self.waited = 100 + len(processes), None, False
             processes.append(self)
 

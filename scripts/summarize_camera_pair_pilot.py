@@ -12,6 +12,8 @@ import csv
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 import re
 import sys
 
@@ -371,10 +373,10 @@ def make_plots(result, output):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--input", type=Path, default=ROOT / "outputs/camera_pair_pilot_20261026")
+    parser.add_argument("--input", type=Path, default=artifact_path('outputs', 'camera_pair_pilot_20261026'))
     parser.add_argument("--center-root", type=Path)
     parser.add_argument("--delta-root", type=Path)
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/camera_pair_pilot_20261026")
+    parser.add_argument("--output", type=Path, default=artifact_path('reports', 'camera_pair_pilot_20261026'))
     parser.add_argument("--expected-steps", type=int, choices=[DECLARED_STEPS], default=DECLARED_STEPS)
     parser.add_argument("--plots", action="store_true")
     arguments = parser.parse_args()

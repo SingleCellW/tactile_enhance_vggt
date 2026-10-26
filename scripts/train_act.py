@@ -17,7 +17,10 @@ import traceback
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "lerobot" / "src")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import dependency_path
+from tactile_vggt.provenance import write_run_manifest
+sys.path[:0] = [str(dependency_path("lerobot") / "src")]
 
 import numpy as np
 import torch
@@ -135,6 +138,7 @@ def run(args):
                                ("status.json", "train_config.json", "checkpoints", "metrics.jsonl")):
         raise ValueError(f"Output already has a run; use a fresh directory or --resume: {output}")
     config = json.loads(Path(args.config).read_text())
+    write_run_manifest(output, args)
     if args.mode:
         config["policy"]["mode"] = args.mode
     if args.batch_size is not None:
@@ -178,7 +182,7 @@ def run(args):
                    "budget_rule": "explicit --steps override" if args.steps is not None else
                                   "reference_steps * train_observations/reference_frames * reference_batch/batch",
                    "argv": sys.argv, "torch": torch.__version__,
-                   "lerobot_source": str(ROOT / "lerobot"), "frozen_vggt": True,
+                   "lerobot_source": str(dependency_path("lerobot")), "frozen_vggt": True,
                    "sampler_version": 1,
                    "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
                    "data_manifest_sha256": hashlib.sha256((Path(args.cache) / "manifest.json").read_bytes()).hexdigest()})

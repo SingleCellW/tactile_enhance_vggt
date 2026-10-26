@@ -20,7 +20,9 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "lerobot/src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(dependency_path("lerobot") / "src"), str(ROOT / "scripts")]
 from evaluate_sim import SimulationClient, digest, read_observation, timing_stats, write_json
 from evaluate_token_act import (checkpoint_map, make_cases as make_grid_cases,
     representation_split, choose_source, score_trajectory, wilson_interval,
@@ -513,15 +515,15 @@ def parser():
     result.add_argument("--case-set", choices=("all", "support", "nominal", "grid36"), default="all")
     result.add_argument("--case-limit", type=int, help="Smoke prefix; always marked incomplete as a final protocol")
     result.add_argument("--n-action-steps", type=int, choices=(2, 8))
-    result.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    result.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
+    result.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    result.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
     result.add_argument("--device", default="cuda:0")
     result.add_argument("--amp", choices=("bfloat16", "float32"), default="bfloat16")
-    result.add_argument("--worker-python", type=Path, default=Path("/home/wukf/miniforge3/envs/te/bin/python"))
-    result.add_argument("--dynamic-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921"))
-    result.add_argument("--raw-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212"))
-    result.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
-    result.add_argument("--source-readouts", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/readouts/picklift.npz"))
+    result.add_argument("--worker-python", type=Path, default=machine_path("worker_python", default=sys.executable))
+    result.add_argument("--dynamic-root", type=Path, default=machine_path("dynamic_root"))
+    result.add_argument("--raw-root", type=Path, default=machine_path("raw_root"))
+    result.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
+    result.add_argument("--source-readouts", type=Path, default=machine_path("source_readouts"))
     result.add_argument("--seed", type=int, default=43)
     result.add_argument("--trace-every", type=int, default=20)
     result.add_argument("--video-cases", type=int, default=0)
@@ -533,6 +535,7 @@ def parser():
 
 if __name__ == "__main__":
     arguments = parser().parse_args()
+    require_machine_arguments(arguments, 'worker_python', 'dynamic_root', 'raw_root', 'source_readouts', 'timestamps_root')
     if arguments.trace_every < 1 or arguments.worker_timeout <= 0 or arguments.video_cases < 0:
         raise ValueError("Positive trace/timeout and nonnegative video count required")
     try:

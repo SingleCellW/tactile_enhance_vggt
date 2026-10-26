@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import sys
 import time
 
 import numpy as np
@@ -12,6 +13,7 @@ import torch
 from run_token_pilot import PilotArrays, dump, sha
 from token_runtime import LiveTokenEncoder, ROOT
 
+from tactile_vggt.paths import artifact_path, dependency_path
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
@@ -19,8 +21,8 @@ def main():
     p.add_argument("--prefix", type=Path, required=True)
     p.add_argument("--run", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
-    p.add_argument("--repository", type=Path, default=ROOT/"vendor/vggt")
-    p.add_argument("--weights", type=Path, default=ROOT/"weights/model.pt")
+    p.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    p.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
     p.add_argument("--device", default="cuda:0")
     args = p.parse_args()
     torch.set_num_threads(4)

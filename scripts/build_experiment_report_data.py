@@ -13,18 +13,31 @@ import json
 import os
 from pathlib import Path
 
+from tactile_vggt.paths import artifact_path, artifact_root
+
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports/experiment_review_20261019"
+REPORT = artifact_path('reports', 'experiment_review_20261019')
 LABELS = {"anchored": "空间锚定触觉", "unanchored": "全局触觉（无显式锚定）", "no_tactile": "无触觉"}
 EPISODES = [1, 24, 35, 43, 52]
 SOURCE_REGISTRY: dict[str, dict] = {}
 
 
+def input_path(path):
+    path = Path(path)
+    if path.is_absolute():
+        return path
+    if path.parts[0] == "docs":
+        return artifact_path("reports", "historical_docs", *path.parts[1:])
+    if path.parts[0] in ("artifacts", "reports", "outputs", "runs", "cache"):
+        return artifact_path(path.parts[0], *path.parts[1:])
+    return ROOT / path
+
+
 def source(path: Path | str) -> dict:
     path = Path(path)
-    path = path if path.is_absolute() else ROOT / path
-    key = str(path.relative_to(ROOT))
+    path = input_path(path)
+    key = str(path.relative_to(artifact_root())) if path.is_relative_to(artifact_root()) else str(path)
     if key not in SOURCE_REGISTRY:
         if not path.is_file():
             raise FileNotFoundError(path)
@@ -45,7 +58,7 @@ def source(path: Path | str) -> dict:
 def read(path: Path | str) -> dict:
     source(path)
     path = Path(path)
-    return json.loads((path if path.is_absolute() else ROOT / path).read_text())
+    return json.loads(input_path(path).read_text())
 
 
 def href(path: Path) -> str:
@@ -151,7 +164,7 @@ def model_data(summary_path: Path, model: dict, detailed: bool) -> dict:
 def stage(stage_id: str, label: str, version: str, step: int, description: str, roots: list[str], detailed: bool = False) -> dict:
     models = []
     for root in roots:
-        path = ROOT / root / "summary.json"
+        path = input_path(Path(root) / "summary.json")
         summary = read(path)
         assert summary["complete"]
         models.extend(model_data(path, model, detailed) for model in summary["models"] if int(model["model"].rsplit("_", 1)[1]) == step)

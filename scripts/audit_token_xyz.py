@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import sys
 
 import numpy as np
 import torch
@@ -12,13 +13,14 @@ from run_token_pilot import PilotArrays, make_block, dump, sha
 from tactile_vggt.token_fusion import TokenFusionProbe
 from tactile_vggt.token_metrics import euclidean_errors_mm, paired_group_bootstrap, report_metrics
 
+from tactile_vggt.paths import dependency_path
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--prefix", type=Path, required=True)
     p.add_argument("--checkpoint", type=Path, required=True)
-    p.add_argument("--repository", type=Path, default=Path("vendor/vggt"))
+    p.add_argument("--repository", type=Path, default=dependency_path("vggt"))
     p.add_argument("--output", type=Path, required=True)
     args = p.parse_args()
     torch.set_num_threads(4)

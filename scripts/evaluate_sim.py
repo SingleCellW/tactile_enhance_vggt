@@ -20,7 +20,9 @@ import traceback
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "lerobot/src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(dependency_path("lerobot") / "src"), str(ROOT / "scripts")]
 import numpy as np
 
 
@@ -37,6 +39,12 @@ def write_json(path, payload):
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n")
     temporary.replace(path)
+
+
+def worker_configuration(args):
+    """JSON-stable worker locations, including defaults resolved as Paths."""
+    return {"python": str(args.worker_python), **{key: str(getattr(args, key)) for key in
+            ("dynamic_root", "raw_root", "timestamps_root", "source_readouts")}}
 
 
 class SimulationClient:
@@ -155,9 +163,7 @@ def run(args):
               "cache_manifest_sha256": digest(cache / "manifest.json"),
               "checkpoints": [{"path": str(p), "model_sha256": digest(p / "model.pt")} for p in checkpoints],
               "checkpoint_selection": args.selection_note,
-              "worker": {"python": args.worker_python, "dynamic_root": args.dynamic_root,
-                         "raw_root": args.raw_root, "timestamps_root": args.timestamps_root,
-                         "source_readouts": args.source_readouts},
+              "worker": worker_configuration(args),
               "implementation": {str(p.relative_to(ROOT)): digest(p) for p in
                                   (Path(__file__), ROOT / "scripts/sim_worker.py", ROOT / "src/tactile_vggt/simulation.py",
                                    ROOT / "src/tactile_vggt/inference.py", ROOT / "src/tactile_vggt/geometry.py")},
@@ -315,14 +321,14 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", required=True, action="append")
     parser.add_argument("--cache", required=True)
     parser.add_argument("--output", required=True)
-    parser.add_argument("--vggt-repo", default=str(ROOT / "vendor/vggt"))
-    parser.add_argument("--vggt-weights", default=str(ROOT / "weights/model.pt"))
+    parser.add_argument("--vggt-repo", default=str(dependency_path("vggt")))
+    parser.add_argument("--vggt-weights", default=str(artifact_path("weights") / "model.pt"))
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--worker-python", default="/home/wukf/miniforge3/envs/te/bin/python")
-    parser.add_argument("--dynamic-root", default="/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921")
-    parser.add_argument("--raw-root", default="/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212")
-    parser.add_argument("--timestamps-root", default=str(ROOT / "inputs/raw_timestamps"))
-    parser.add_argument("--source-readouts", default="/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921/readouts/picklift.npz")
+    parser.add_argument("--worker-python", default=machine_path("worker_python", default=sys.executable))
+    parser.add_argument("--dynamic-root", default=machine_path("dynamic_root"))
+    parser.add_argument("--raw-root", default=machine_path("raw_root"))
+    parser.add_argument("--timestamps-root", default=str(artifact_path("inputs") / "raw_timestamps"))
+    parser.add_argument("--source-readouts", default=machine_path("source_readouts"))
     parser.add_argument("--episodes", help="Comma-separated validation episode IDs; default all held-out five")
     parser.add_argument("--max-steps", type=int, default=600)
     parser.add_argument("--substeps", type=int, default=1)
@@ -335,6 +341,7 @@ if __name__ == "__main__":
     parser.add_argument("--video", action="store_true")
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
+    require_machine_arguments(args, 'worker_python', 'dynamic_root', 'raw_root', 'source_readouts', 'timestamps_root')
     if args.max_steps < 1 or args.substeps not in (1, 5) or args.sensor_dt <= 0:
         parser.error("Positive steps/sensor-dt and one or five physics substeps required")
     try:

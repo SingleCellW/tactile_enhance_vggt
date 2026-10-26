@@ -19,6 +19,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path
 from tactile_vggt.token_metrics import paired_group_bootstrap
 
 
@@ -263,7 +264,7 @@ def run(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data", type=Path, default=ROOT / "artifacts/token_pilot_data_20261025")
-    parser.add_argument("--runs", type=Path, nargs="+", default=[ROOT / f"outputs/token_pilot_20261025/s{seed}_refined_v2" for seed in (43, 44, 45)])
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/token_pilot_20261025/counterfactual_audit.json")
+    parser.add_argument("--data", type=Path, default=artifact_path("artifacts") / "token_pilot_data_20261025")
+    parser.add_argument("--runs", type=Path, nargs="+", default=[artifact_path("outputs") / f"token_pilot_20261025/s{seed}_refined_v2" for seed in (43, 44, 45)])
+    parser.add_argument("--output", type=Path, default=artifact_path("reports") / "token_pilot_20261025/counterfactual_audit.json")
     run(parser.parse_args())

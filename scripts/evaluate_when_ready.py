@@ -13,6 +13,8 @@ import time
 import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.execution import selected_gpus, child_environment
 
 
 def write_json(path, value):
@@ -126,14 +128,7 @@ def execute_jobs(jobs, expected_hashes, deadline, output):
             verify_implementation(expected_hashes)
             if time.monotonic() >= deadline:
                 raise TimeoutError('Evaluation job timeout expired')
-            env = os.environ.copy()
-            env['CUDA_VISIBLE_DEVICES'] = gpu
-            if gpu.isdigit():
-                # EGL enumerates physical GPUs independently of CUDA's remapping.
-                env['MUJOCO_EGL_DEVICE_ID'] = gpu
-            env['PYTHONUNBUFFERED'] = '1'
-            env['MUJOCO_GL'] = 'egl'
-            env.update(OMP_NUM_THREADS='4', MKL_NUM_THREADS='4', OPENBLAS_NUM_THREADS='4')
+            env = child_environment(gpu, render=True)
             log = (output / f'{name}.log').open('x')
             try:
                 child = subprocess.Popen(command, env=env, stdout=log, stderr=subprocess.STDOUT,
@@ -158,7 +153,7 @@ def execute_jobs(jobs, expected_hashes, deadline, output):
 
 
 def run(args):
-    gpus = [value.strip() for value in args.gpus.split(',')]
+    gpus = selected_gpus(args.gpus)
     if len(gpus) != 2 or len(set(gpus)) != 2 or not all(gpus):
         raise ValueError('--gpus requires exactly two distinct physical GPU IDs/UUIDs')
     if args.expected_steps < 1 or args.timeout_seconds <= 0 or args.poll_seconds <= 0:
@@ -244,7 +239,7 @@ def main():
     parser.add_argument('--runs', nargs='+', required=True)
     parser.add_argument('--cache', required=True)
     parser.add_argument('--output', required=True)
-    parser.add_argument('--gpus', default='1,2')
+    parser.add_argument('--gpus', required=True, help='Two distinct allocated GPU IDs/UUIDs')
     parser.add_argument('--expected-steps', type=int, default=36000)
     parser.add_argument('--timeout-seconds', type=float, default=48 * 3600)
     parser.add_argument('--poll-seconds', type=float, default=30)

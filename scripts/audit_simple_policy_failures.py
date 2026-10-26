@@ -17,6 +17,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path
 sys.path[:0] = [str(ROOT / "scripts"), str(ROOT / "src")]
 from evaluate_sim import digest, write_json
 from evaluate_token_act import score_trajectory
@@ -225,9 +227,9 @@ def audit(experiment_root, manifest_path=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment-root", "--input", type=Path, default=ROOT / "outputs/simple_policy_followup_20261025")
+    parser.add_argument("--experiment-root", "--input", type=Path, default=artifact_path("outputs") / "simple_policy_followup_20261025")
     parser.add_argument("--manifest", type=Path)
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/simple_policy_followup_20261025/failure_stages.json")
+    parser.add_argument("--output", type=Path, default=artifact_path("reports") / "simple_policy_followup_20261025/failure_stages.json")
     args = parser.parse_args()
     result = audit(args.experiment_root, args.manifest)
     args.output.parent.mkdir(parents=True, exist_ok=True)

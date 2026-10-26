@@ -22,42 +22,11 @@ import torch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path
+from tactile_vggt.provenance import write_run_manifest
 
 
-def dump(path, value):
-    path = Path(path)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
-    tmp.replace(path)
-
-
-def sha(path):
-    h = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for block in iter(lambda: stream.read(8 << 20), b""):
-            h.update(block)
-    return h.hexdigest()
-
-
-def seed_all(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-
-
-def load_vggt(repository, weights, device):
-    sys.path.insert(0, str(repository))
-    from vggt.models.vggt import VGGT
-    model = VGGT(enable_point=False, enable_track=False)
-    state = torch.load(weights, map_location="cpu", weights_only=True)
-    if "model" in state:
-        state = state["model"]
-    result = model.load_state_dict(state, strict=False)
-    unexpected = [k for k in result.unexpected_keys if not k.startswith(("point_head.", "track_head."))]
-    if result.missing_keys or unexpected:
-        raise ValueError((result.missing_keys, unexpected))
-    return model.eval().requires_grad_(False).to(device)
+from tactile_vggt.experiment_utils import dump, sha, seed_all, load_vggt
 
 
 def cache_prefix(args):
@@ -226,7 +195,7 @@ def train(args):
     # The 775-example prefix is <1 GB in fp16. Keep it on the reserved A40 to
     # avoid repeatedly transferring large pageable CPU arrays every SGD step.
     data.device_tokens = torch.from_numpy(np.array(data.tokens)).to(args.device)
-    (args.output / "runner_source.py").write_text(Path(__file__).read_text())
+    write_run_manifest(args.output, args)
     train_ids, dev_ids, test_ids = [np.flatnonzero(data.split == value) for value in range(3)]
     if min(map(len, (train_ids, dev_ids, test_ids))) == 0:
         raise ValueError("Empty split")
@@ -323,9 +292,9 @@ def main():
     p.add_argument("command", choices=["extract", "train"])
     p.add_argument("--data", type=Path, required=True)
     p.add_argument("--prefix", type=Path, required=True)
-    p.add_argument("--repository", type=Path, default=ROOT/"vendor/vggt")
-    p.add_argument("--weights", type=Path, default=ROOT/"weights/model.pt")
-    p.add_argument("--output", type=Path, default=ROOT/"outputs/token_pilot_20261025")
+    p.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    p.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
+    p.add_argument("--output", type=Path, default=artifact_path("outputs") / "token_pilot_20261025")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--image-size", type=int, default=224)
     p.add_argument("--extract-batch", type=int, default=4)

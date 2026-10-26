@@ -22,7 +22,10 @@ import numpy as np
 import torch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path
+from tactile_vggt.provenance import write_run_manifest, source_hashes
+sys.path[:0] = [str(ROOT / "scripts")]
 from tactile_vggt.camera_pilot import CameraArrays, evaluate_predictions, episode_summary
 from tactile_vggt.token_fusion import TokenFusionProbe
 from tactile_vggt.token_metrics import paired_group_bootstrap
@@ -57,7 +60,7 @@ def autocast(args):
 def extract(args):
     # The earlier extractor hooks the ACTUAL final pretrained global block and
     # exits before it runs. Only a new Stage1.b prefix path may be supplied.
-    if args.prefix.resolve() == (ROOT / "artifacts/token_pilot_prefix_20261025").resolve():
+    if args.prefix.resolve() == (artifact_path("artifacts") / "token_pilot_prefix_20261025").resolve():
         raise ValueError("Refusing to alter the Stage1.a prefix")
     verify_data_files(args.data)
     cache_prefix(args)
@@ -81,21 +84,11 @@ def validate(args):
 
 
 def snapshot_sources(output):
-    directory = output / "implementation"
-    directory.mkdir(exist_ok=True)
+    """Compatibility name: retain source hashes, without creating copies."""
     paths = [Path(__file__), ROOT / "scripts/run_token_pilot.py",
              ROOT / "src/tactile_vggt/camera_pilot.py", ROOT / "src/tactile_vggt/token_fusion.py",
-             ROOT / "src/tactile_vggt/token_metrics.py"]
-    result = {}
-    for source in paths:
-        target = directory / source.name
-        digest = sha(source)
-        if target.exists() and sha(target) != digest:
-            raise ValueError("Output source snapshot differs; use a new output: " + source.name)
-        if not target.exists():
-            target.write_bytes(source.read_bytes())
-        result[source.name] = digest
-    return result
+             ROOT / "src/tactile_vggt/token_metrics.py", ROOT / "src/tactile_vggt/experiment_utils.py"]
+    return source_hashes(paths)
 
 
 class Batches:
@@ -317,6 +310,7 @@ def train(args):
     validate(args)
     data = CameraArrays(args.data)
     args.output.mkdir(parents=True, exist_ok=True)
+    write_run_manifest(args.output, args)
     norm_path = args.output / "normalization.json"
     if norm_path.exists() and json.loads(norm_path.read_text()) != data.normalization:
         raise ValueError("Output normalization differs from nominal-training statistics")
@@ -337,7 +331,7 @@ def train(args):
                   "runner_sha256": sha(__file__), "helper_sha256": sha(ROOT / "src/tactile_vggt/camera_pilot.py"),
                   "token_fusion_sha256": sha(ROOT / "src/tactile_vggt/token_fusion.py"),
                   "legacy_runner_dependency_sha256": sha(ROOT / "scripts/run_token_pilot.py"),
-                  "source_snapshots": snapshot_sources(args.output)}
+                  "source_hashes": snapshot_sources(args.output)}
     batches = Batches(data, args.prefix, args.device, args.preload_gb)
     runs = []
     for seed in args.seeds:
@@ -369,9 +363,9 @@ def main():
     parser.add_argument("command", choices=["extract", "train", "evaluate"])
     parser.add_argument("--data", type=Path, required=True)
     parser.add_argument("--prefix", type=Path, required=True)
-    parser.add_argument("--repository", type=Path, default=ROOT / "vendor/vggt")
-    parser.add_argument("--weights", type=Path, default=ROOT / "weights/model.pt")
-    parser.add_argument("--output", type=Path, default=ROOT / "outputs/camera_pilot_20261026")
+    parser.add_argument("--repository", type=Path, default=dependency_path("vggt"))
+    parser.add_argument("--weights", type=Path, default=artifact_path("weights") / "model.pt")
+    parser.add_argument("--output", type=Path, default=artifact_path("outputs") / "camera_pilot_20261026")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--image-size", type=int, default=224)
     parser.add_argument("--extract-batch", type=int, default=4)

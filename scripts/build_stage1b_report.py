@@ -12,6 +12,8 @@ import hashlib
 from html import escape
 import json
 from pathlib import Path
+
+from tactile_vggt.paths import artifact_path
 import shutil
 import zipfile
 
@@ -56,6 +58,23 @@ def section(key, eyebrow, title, body):
     return f'<section id="{key}" class="report-section"><div class="section-heading"><div><div class="eyebrow">{eyebrow}</div><h2>{title}</h2></div></div>{body}</section>'
 
 
+def recorded_run_path(path):
+    """Resolve the former project/outputs layout without rewriting evidence."""
+    path = Path(path)
+    if path.exists():
+        return path
+    parts = path.parts
+    if path.is_absolute():
+        try:
+            index = parts.index("tactile_enhance_vggt")
+        except ValueError:
+            return path
+        parts = parts[index + 1:]
+    if parts and parts[0] in ("outputs", "runs"):
+        return artifact_path("runs", *parts[1:])
+    return path
+
+
 def prediction_archive(main_data, pair_data, destination):
     manifest = {"scope": "Per-observation predictions and run records; model weights and RGB are not included", "files": {}}
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -65,8 +84,13 @@ def prediction_archive(main_data, pair_data, destination):
             for run in data["runs"]:
                 prefix = f"{phase}/s{run['seed']}/{run.get('objective', run.get('regime'))}/{run['mode']}"
                 for name in ("config.json", "completion.json", "history.json", "metrics.json", "test_predictions.npz"):
-                    source = Path(run["directory"]) / name
+                    recorded = Path(run["directory"]) / name
+                    source = recorded_run_path(recorded)
                     payload = source.read_bytes()
+                    expected = data.get("sources", {}).get(str(recorded))
+                    if expected and (expected["sha256"] != hashlib.sha256(payload).hexdigest() or
+                                     expected["bytes"] != len(payload)):
+                        raise ValueError("Recorded source size/SHA mismatch: " + str(recorded))
                     key = prefix + "/" + name
                     manifest["files"][key] = {"sha256": hashlib.sha256(payload).hexdigest(), "bytes": len(payload)}
                     archive.writestr(key, payload)
@@ -78,8 +102,8 @@ def prediction_archive(main_data, pair_data, destination):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--report", type=Path, default=ROOT / "reports/camera_pilot_20261026")
-    parser.add_argument("--output", type=Path, default=ROOT / "portal/reports/stage1b")
+    parser.add_argument("--report", type=Path, default=artifact_path('reports', 'camera_pilot_20261026'))
+    parser.add_argument("--output", type=Path, default=artifact_path('site', 'reports/stage1b'))
     parser.add_argument("--pair-report", type=Path)
     args = parser.parse_args()
     d, narrative = read(args.report / "results.json"), read(args.report / "narrative.json")
@@ -131,7 +155,9 @@ def main():
                         ("docs/stage1b_followup_20261026.md", "补测触发与运行记录")])
     source_links = []
     for relative, label in sources:
-        source = ROOT / relative
+        parts = Path(relative).parts
+        source = (artifact_path("reports", "historical_docs", *parts[1:]) if parts[0] == "docs" else
+                  artifact_path("artifacts", *parts[1:]) if parts[0] == "artifacts" else ROOT / relative)
         destination = output / "evidence" / source.name
         shutil.copy2(source, destination)
         source_links.append(f'<a href="evidence/{escape(destination.name)}">{escape(label)} ↗</a>')

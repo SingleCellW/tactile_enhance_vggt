@@ -20,7 +20,9 @@ import time
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, dependency_path, machine_path, require_machine_arguments
+sys.path[:0] = [str(ROOT / "scripts")]
 from tactile_vggt.geometry import calibrated_similarity, unproject_depth, world_to_base
 
 
@@ -232,6 +234,12 @@ def score_errors(xyz, gt_world, gt_depth, known, mask):
             "xyz_within_5cm_fraction": float((point <= .05).mean()) if len(point) else None}
 
 
+def render_specification(args, cache, cases, image_size):
+    """The renderer gets all machine inputs from this immutable JSON spec."""
+    return {"cache": str(cache), "cases": cases, "image_size": image_size,
+            **{key: str(getattr(args, key)) for key in ("dynamic_root", "raw_root", "timestamps_root")}}
+
+
 def audit(args):
     from prepare_cache import FrozenVGGT, VideoReader
     import torch
@@ -245,8 +253,7 @@ def audit(args):
     weights_sha = sha(args.weights)
     if weights_sha != manifest["configuration"]["weights"]["sha256"]:
         raise ValueError("VGGT weights differ from the cached training geometry")
-    spec = {"cache": str(cache), "cases": cases, "image_size": size, "dynamic_root": args.dynamic_root,
-            "raw_root": args.raw_root, "timestamps_root": args.timestamps_root}
+    spec = render_specification(args, cache, cases, size)
     write_json(output / "render_spec.json", spec)
     write_json(output / "cpu_geometry_gate.json", cpu_geometry_gate(cache, args.active_threshold))
     subprocess.run([args.worker_python, str(Path(__file__).resolve()), "--render-spec", str(output / "render_spec.json"),
@@ -368,7 +375,7 @@ def score_saved(args, cases, manifest, gt, rgb, predictions, weights_sha, starte
     print(json.dumps({"output": str(output), "summary": {v: {r: stats["pixel_corresponded_xyz_error_m"] for r, stats in regions.items() if r in ("workspace/both", "cube/both", "near_tactile_10cm/both")} for v, regions in summaries.items()}}, indent=2), flush=True)
 
 
-if __name__ == "__main__":
+def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--render-spec")
     p.add_argument("--render-output")
@@ -379,17 +386,27 @@ if __name__ == "__main__":
     p.add_argument("--split", choices=("train", "val", "all"), default="val")
     p.add_argument("--active-threshold", type=float, default=.5)
     p.add_argument("--rgb-source", choices=("recorded", "rendered"), default="recorded")
-    p.add_argument("--vggt-repo", default=str(ROOT / "vendor/vggt"))
-    p.add_argument("--weights", default=str(ROOT / "weights/model.pt"))
+    p.add_argument("--vggt-repo", default=str(dependency_path("vggt")))
+    p.add_argument("--weights", default=str(artifact_path("weights") / "model.pt"))
     p.add_argument("--device", default="cuda:0")
-    p.add_argument("--worker-python", default="/home/wukf/miniforge3/envs/te/bin/python")
-    p.add_argument("--dynamic-root", default="/home/wukf/projects/tactile_enhance/rgbs_dynamic44_20260921")
-    p.add_argument("--raw-root", default="/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212")
-    p.add_argument("--timestamps-root", default=str(ROOT / "inputs/raw_timestamps"))
+    p.add_argument("--worker-python", default=machine_path("worker_python", default=sys.executable))
+    p.add_argument("--dynamic-root", default=machine_path("dynamic_root"))
+    p.add_argument("--raw-root", default=machine_path("raw_root"))
+    p.add_argument("--timestamps-root", default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps"))
     args = p.parse_args()
     if args.render_spec:
+        if not args.render_output:
+            p.error("--render-output is required with --render-spec")
         render_gt(args.render_spec, args.render_output)
     else:
         if not args.cache or not args.output or args.frames < 2:
             p.error("--cache, --output and at least 2 frames required")
-        score_existing(args) if args.score_existing else audit(args)
+        if args.score_existing:
+            score_existing(args)
+        else:
+            require_machine_arguments(args, 'worker_python', 'dynamic_root', 'raw_root', 'timestamps_root')
+            audit(args)
+
+
+if __name__ == "__main__":
+    main()

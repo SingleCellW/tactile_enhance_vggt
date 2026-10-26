@@ -13,11 +13,14 @@ from datetime import datetime
 import hashlib
 import json
 from pathlib import Path
+import sys
 from zoneinfo import ZoneInfo
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path, machine_path, require_machine_arguments
 
 
 def digest(path):
@@ -101,11 +104,12 @@ def audit(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--cache", type=Path, default=ROOT / "cache/pickplace_vggt_native_physics_dt01_stride4")
-    parser.add_argument("--raw-root", type=Path, default=Path("/home/wukf/projects/tactile_enhance/rgbs_corrected44_20260906/raw_numeric/Mujoco_Picklift_random_cube_260212"))
-    parser.add_argument("--timestamps-root", type=Path, default=ROOT / "inputs/raw_timestamps")
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/simple_policy_followup_20261025/source_endpoint_audit.json")
+    parser.add_argument("--cache", type=Path, default=artifact_path("cache") / "pickplace_vggt_native_physics_dt01_stride4")
+    parser.add_argument("--raw-root", type=Path, default=machine_path("raw_root"))
+    parser.add_argument("--timestamps-root", type=Path, default=machine_path("timestamps_root", default=machine_path("timestamps_root", default=artifact_path("inputs") / "raw_timestamps")))
+    parser.add_argument("--output", type=Path, default=artifact_path("reports") / "simple_policy_followup_20261025/source_endpoint_audit.json")
     args = parser.parse_args()
+    require_machine_arguments(args, 'raw_root', 'timestamps_root')
     result = audit(args)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_suffix(".json.tmp")

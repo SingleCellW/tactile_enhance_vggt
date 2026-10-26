@@ -10,23 +10,29 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.paths import artifact_path
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, default=ROOT)
+    p.add_argument("--python", type=Path, default=Path(sys.executable))
     args = p.parse_args()
     root = args.root.resolve()
+    if root != ROOT:
+        p.error("Run the launcher from the desired checkout; use TACTILE_VGGT_ARTIFACT_ROOT for external outputs")
     os.chdir(root)
-    output = root/"outputs/token_pilot_20261025"
-    logs = root/"logs/token_pilot_20261025"
+    output = artifact_path("outputs") / "token_pilot_20261025"
+    logs = artifact_path("logs") / "token_pilot_20261025"
     logs.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
-    env.update(CUDA_VISIBLE_DEVICES="0", MUJOCO_EGL_DEVICE_ID="0", OMP_NUM_THREADS="4")
-    python = str(root/".venv/bin/python")
-    data = "artifacts/token_pilot_data_20261025"
-    prefix = "artifacts/token_pilot_prefix_20261025"
-    cache = "cache/pickplace_vggt_native_physics_dt01_stride4"
+    env.setdefault("OMP_NUM_THREADS", "4")
+    python = str(args.python)
+    data = str(artifact_path("artifacts", "token_pilot_data_20261025"))
+    prefix = str(artifact_path("artifacts", "token_pilot_prefix_20261025"))
+    cache = str(artifact_path("cache", "pickplace_vggt_native_physics_dt01_stride4"))
     completed = []
 
     def status(stage, **extra):
@@ -70,18 +76,18 @@ def main():
     modes = ("visual", "late", "internal")
     probes = {name:output/f"s43_refined_v2/{name}/best.pt" for name in modes}
     command = [python,"-u","scripts/token_runtime.py","--cache",cache,
-               "--output","cache/token_features_20261025","--batch-size","4"]
+               "--output",str(artifact_path("cache", "token_features_20261025")),"--batch-size","4"]
     for name,path in probes.items():
         command += ["--checkpoint",f"{name}={path}"]
     run("export_original_features",command)
     for name in modes:
         run("train_act_"+name,[python,"-u","scripts/train_token_act.py","--cache",cache,
-            "--features-dir",f"cache/token_features_20261025/{name}",
+            "--features-dir",str(artifact_path("cache", "token_features_20261025", name)),
             "--output",str(output/f"act_{name}_s43"),"--steps","6000","--seed","43",
             "--batch-size","64","--eval-every","1000","--save-every","2000"])
     command = [python,"-u","scripts/evaluate_token_act.py","--cache",cache,
                "--output",str(output/"closed_loop36"),
-               "--representation-manifest",str(root/data/"manifest.json")]
+               "--representation-manifest",str(Path(data)/"manifest.json")]
     for name,path in probes.items():
         command += ["--probe-checkpoint",f"{name}={path}",
                     "--policy-checkpoint",f"{name}={output/f'act_{name}_s43/checkpoints/006000'}"]

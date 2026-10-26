@@ -22,6 +22,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from tactile_vggt.execution import selected_gpus, child_environment
 MODES = ("anchored", "unanchored", "no_tactile")
 
 
@@ -156,7 +158,7 @@ def prepare(args):
     print(json.dumps({"action": "prepared_only", "plan": str(plan_path), "steps_per_run": steps,
                       "train_observations": train_count, "val_observations": val_count,
                       "average_chunk_exposures": steps * batch_size / train_count,
-                      "next": "execute --plan <suite_plan.json> --gpus 1,2 --modes anchored,unanchored"}, indent=2))
+                      "next": "execute --plan <suite_plan.json> --gpus <allocated-ids> --modes anchored,unanchored"}, indent=2))
 
 
 def execute(args):
@@ -170,7 +172,7 @@ def execute(args):
         if digest(item["path"]) != item["sha256"]:
             raise ValueError(f"Implementation changed since preparation: {item['path']}")
     modes = args.modes.split(",")
-    gpus = args.gpus.split(",")
+    gpus = selected_gpus(args.gpus)
     if not modes or len(set(modes)) != len(modes) or not set(modes) <= set(MODES):
         raise ValueError("Choose unique modes from anchored,unanchored,no_tactile")
     if not gpus or any(not gpu for gpu in gpus) or len(set(gpus)) != len(gpus):
@@ -187,8 +189,7 @@ def execute(args):
 
     def worker(gpu, assigned):
         results = []
-        env = dict(os.environ, CUDA_VISIBLE_DEVICES=gpu, PYTHONUNBUFFERED="1",
-                   OMP_NUM_THREADS="4", MKL_NUM_THREADS="4", OPENBLAS_NUM_THREADS="4")
+        env = child_environment(gpu)
         for job in assigned:
             output = Path(job["output"])
             status_path = output / "status.json"
