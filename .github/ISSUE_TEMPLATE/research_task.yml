@@ -1,0 +1,25 @@
+name: Research task or unresolved finding
+description: Track a scientific question without confusing implementation checks with evidence.
+title: "[Research] "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question and existing evidence
+      description: Separate observed results from hypotheses. Link the relevant commit, run manifest and report.
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed controls and scope
+      description: Data split, modes/baselines, seeds, budget, selection rule and evaluation metrics.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance and unresolved limits
+      description: Use checkboxes. Keep unsupported, failed and unmeasured outcomes explicit.
+    validations:
+      required: true

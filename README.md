@@ -1,141 +1,104 @@
-# Frozen VGGT + tactile ACT
+# Tactile Enhance VGGT
 
-Simulation pilot for spatial tactile anchoring in the existing pick-and-place task.
-VGGT is **frozen and run offline once**. A small spatial point encoder and the
-current LeRobot ACT are trained. This repository does not modify upstream LeRobot.
+Research code for combining frozen VGGT visual representations with tactile
+observations and ACT policies in a calibrated PickLift simulation. The current
+source includes the point-cloud baseline, internal/late token fusion, simpler
+policy controls, and Stage 1.b camera augmentation and displacement experiments.
 
-## Pinned sources
+This is a research baseline. Historical experiments do **not** yet establish a
+consistent internal-fusion advantage, reliable spatial displacement response or
+improved policy success. See [research status and open issues](docs/research_status.md).
 
-- LeRobot submodule: `297774fca4e3ad0aa34e7425fbf937111637e77b` (0.6.2, Python 3.12).
-- VGGT: `a288dd0f14786c93483e45524328726ab7b1b4ce`.
-- Official VGGT-1B `model.pt` SHA256:
-  `d15bf50a8615c8225ed48b51ea5cac673d82442ec0309036df555a053253afe0`.
-- ACT reference: remote `rgbs_act_backbone_dynamic_20260923/configs/pickplace_act_rgbs_r3m18_dyn44_s43.json`.
+## Install and verify
 
-## Experiment contract
-
-- Same-time left/right RGB pairs; no future images or whole-episode reconstruction.
-  Rendering audit establishes that stored RGB row `r` depicts recorded state
-  row `r-1`; repaired observations explicitly correct this historical lag.
-- VGGT predicted camera/depth heads, BF16 inference, no gradients. No GT depth.
-- Known first-camera orientation/origin and known stereo baseline fix the global
-  coordinate and scale ambiguity. This is a **calibrated** experiment.
-- 512 sampled visual points and 44 corrected tactile anchors. Channels are
-  `[x, y, z, r, g, b, pressure, is_tactile]`; XYZ stays in base-frame metres.
-- Shared point MLP plus local visual neighborhoods around tactile anchors feed
-  an ACT condition. This is a lightweight PointNet-style encoder, not PointNet++.
-- `anchored` and `unanchored` use the same parameter allocation, visual points,
-  training split, and global tactile readings. The latter does not read tactile
-  positions or activate the spatial contact branch. `no_tactile` is also supported.
-- 22 joint-position observations and 22 joint-position target actions.
-- All 53 historical episodes are retained to preserve the source training set,
-  including trajectories with failed success labels. Do not describe all 53 as
-  successful demonstrations. Split by original episode (seed 43, 10% validation).
-- Pilot geometry observations use stride 4. Action labels remain the full 20 Hz
-  source stream, including its historical next-frame command convention.
-- Normalization uses training episodes only. Action chunks never cross episodes.
-
-## Historical data alignment
-
-The inherited dataset pairs original recorded RGB/state with tactile generated
-by a later controller replay. Its tactile anchors are not consistently aligned
-to the recorded hand: an audit found a 26.2 mm 90th-percentile error among active
-sensor/frame pairs, with a 115.7 mm maximum. Those inherited tactile observations
-must not be used to assess spatial anchoring.
-
-The current pilot recomputes native tactile at the complete recorded 29D simulator
-state, using causal generalized velocities from consecutive timestamps within each
-episode. Object pose is used only to synthesize tactile, never as a policy input.
-Both force and anchors are replaced together. `repair_cached_tactile.py` creates a
-new cache, verifies frame/state correspondence, preserves retained VGGT visual points
-bit for bit, and recomputes train-only pressure normalization. Its manifest records
-the regeneration report and hashes. The paired launcher requires this repaired cache.
-Each trajectory's first cached RGB is dropped because its previous recorded
-state is unavailable. Remaining RGB row `r` is paired with state/force and the
-existing source action label at `r-1`; action arrays retain their original rate.
-See [native regeneration](docs/native_tactile_repair.md) for the force-proxy
-assumptions and [paired protocol](docs/ablation_protocol.md) for comparison limits.
-
-## Training
-
-`configs/act_pilot.json` retains the reference ACT shape, LR, KL weight and chunk
-settings: batch 64, AdamW 1e-5, weight decay 1e-4, gradient clip 10, chunk 16,
-execute 8, hidden 512, encoder 4, decoder 1, KL weight 10, no LR scheduler.
-BF16, TF32, fused AdamW, memory-mapped cached geometry, pinned transfers and
-persistent workers avoid repeated visual inference and video decoding.
-
-The initial step budget preserves approximate reference sample exposure:
-
-`160000 * train_observations / 20212 * 64 / batch_size`, rounded to 1000 steps.
-
-This is an initial budget, not evidence of convergence. The held-out action L1
-is an imitation diagnostic, **not a closed-loop task success rate**.
-
-On rimlab-server, the isolated `.venv` inherits the existing Python 3.12 CUDA
-PyTorch installation without modifying it. Project-local packages pin compatible
-NumPy and torchvision CUDA wheels. Source and dependencies are separate from
-the old tactile project.
-
-After creating and checking the synchronized tactile cache, submit the paired pilot:
+Use Linux and **Python 3.12** for the pinned LeRobot ACT implementation. The
+following installs the tested CPU environment; it does not download training
+data or VGGT weights and does not launch training.
 
 ```bash
-nohup bash scripts/run_pilot.sh > logs/pilot_supervisor.log 2>&1 < /dev/null &
+git clone https://github.com/SingleCellW/tactile_enhance_vggt.git
+cd tactile_enhance_vggt
+python3.12 -m venv .venv
+source .venv/bin/activate
+unset PYTHONPATH
+python scripts/bootstrap_dependencies.py --dependency lerobot --fetch
+python -m pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r envs/cpu-py312.lock.txt
+python -m pip install --no-deps --no-build-isolation -e '.[train,report,dev]' -e external/lerobot
+python -m pip check
+python scripts/doctor.py --profile train
+PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 python -m pytest tests -q
 ```
 
-The supervisor uses physical GPU 1/2 and trains anchored/unanchored ACT against
-the same completed `cache/pickplace_vggt_native_sync_stride4` cache.
-It refuses duplicate campaign names and insufficient free GPU memory. Inspect
-the process IDs and logs under `logs/`, and `outputs/*/status.json` for loss,
-step, memory, throughput and Shanghai-time ETA. Checkpoints are written atomically
-at 100, 1000, every 5000, and the final step; `latest` points to a complete save.
+While the maintenance PR is open, check out `chore/repository-standardization`
+after cloning; `main` receives this layout only when the PR is merged.
+[Environment details](envs/README.md) distinguish core, CPU verification, CUDA
+training and the separate simulation worker environment.
 
-Direct single-run or resume commands:
+For the visual backbone, run `python scripts/bootstrap_dependencies.py --fetch`.
+This creates ignored `external/lerobot` and `external/vggt` links into a shared
+pool, at the commits in [dependencies.lock.json](dependencies.lock.json).
+Reuse an existing checkout with `--local NAME=/path/to/checkout`; check all links
+with `--check`. The tool refuses wrong revisions, dirty sources and replacement
+of existing directories. No third-party source is vendored into this repository.
+
+## Implementations and entry points
+
+| Purpose | Entry point |
+|---|---|
+| Point-cloud ACT baseline | `scripts/train_act.py`, `scripts/evaluate_sim.py` |
+| Spatial token fusion | `scripts/build_token_pilot_data.py`, `scripts/run_token_pilot.py` |
+| Token-conditioned ACT | `scripts/train_token_act.py`, `scripts/evaluate_token_act.py` |
+| Simpler policy control | `scripts/train_simple_token_act.py`, `scripts/evaluate_simple_token_act.py` |
+| Camera augmentation | `scripts/build_camera_pilot_data.py`, `scripts/run_camera_pilot.py` |
+| Paired displacement objective | `scripts/run_camera_pair_pilot.py` |
+| Report generation | `scripts/summarize_*.py`, `scripts/build_stage1a_portal_data.py`, `scripts/build_stage1b_report.py` |
+
+Use `--help` for each command. [Architecture](docs/architecture.md),
+[data contracts](docs/data_contract.md), and [reproduction](docs/reproduction.md)
+describe inputs, coordinate conventions, matched controls and provenance.
+Synthetic CPU regression tests do not require private demonstrations. Native
+simulation needs historical tactile code and assets tracked by
+[issue #2](https://github.com/SingleCellW/tactile_enhance_vggt/issues/2).
+
+## Source, data and reports
+
+Maintain code once under `src/tactile_vggt/`. Version it with commits and select
+baselines by configuration. Source, tests, configurations, reusable portal
+templates and maintained documentation are tracked. Generated results are not.
+
+The default artifact root is `.local/`; set `TACTILE_VGGT_ARTIFACT_ROOT` to use
+another disk. It contains `data/`, `weights/`, `cache/`, `artifacts/`, `runs/`,
+`logs/`, `reports/`, `site/`, `deploy/`, `qa/` and `tmp/`. Machine configuration
+is ignored under `configs/machines/local.json`. See the full
+[layout and migration map](docs/repository_layout.md).
+
+Full historical reports remain in the local artifact area and the existing
+[Stage 1.a](http://10.15.89.229:8766/reports/stage1a/) and
+[Stage 1.b](http://10.15.89.229:8766/reports/stage1b/) campus-network pages.
+They are not included in a public clone. The maintained portal shell can be built
+without those results:
 
 ```bash
-CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/train_act.py \
-  --cache cache/pickplace_vggt_native_sync_stride4 --output outputs/example --mode anchored
-CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/train_act.py \
-  --cache cache/pickplace_vggt_native_sync_stride4 --output outputs/resumed --mode anchored \
-  --resume outputs/example/checkpoints/005000
+python -m portal_host.build_site
+python -m portal_host.deploy --build-only --source .local/deploy/site-preview
 ```
 
-## Inference
+These commands do not publish or start a service. See
+[portal instructions](portal_host/README.md) for local validation and explicit
+deployment configuration. Important results need a separate backup; being ignored
+by Git does not make them disposable.
 
-`PointACTInference` loads a fixed checkpoint and its normalization, accepts raw
-robot state / tactile / calibrated point observations, and returns physical
-joint targets. `needs_observation` avoids recomputing VGGT while the action queue
-is nonempty; `reset()` clears it. A supplied point-builder callback can create
-points from current RGB and calibration at each refresh.
+## Maintenance
 
-Simulator deployment must use the same native tactile adapter and sensor ordering
-as the repaired training readouts. The inherited replay-generated forces are not
-interchangeable with the repaired observations. Geometry refresh currently runs
-synchronously when the action queue empties; this adapter alone does not establish
-continuous 20 Hz closed-loop operation. Async refresh/prefetch requires separate
-control-loop validation.
+See [validation](docs/validation.md) for checks actually performed and their limits.
+Report problems using [issues](https://github.com/SingleCellW/tactile_enhance_vggt/issues)
+with a source commit, reproduction command, evidence and acceptance criteria.
+Follow [CONTRIBUTING.md](CONTRIBUTING.md): focused local commits, push the same
+history, PR to `main`, and keep unresolved scientific issues open.
 
-`scripts/benchmark_inference.py` separately measures fresh ACT chunks, normalized
-point-input processing, queued actions, and optionally true RGB→VGGT→ACT refreshes:
-
-```bash
-CUDA_VISIBLE_DEVICES=1 .venv/bin/python scripts/benchmark_inference.py \
-  --checkpoint outputs/example/latest --cache cache/pickplace_vggt_native_sync_stride4 \
-  --device cuda:0 --amp bfloat16 --output outputs/example/latency.json \
-  --geometry-input cache/pickplace_vggt_native_sync_stride4/example_observation.npz \
-  --vggt-repo vendor/vggt --vggt-weights weights/model.pt
-```
-
-Full simulator control-loop evaluation and task success comparisons are a later
-step; cached-geometry latency must not be presented as full-system latency.
-
-## Verification and synchronization
-
-```bash
-PYTHONPATH=src:lerobot/src .venv/bin/python -m pytest tests -q
-```
-
-Tests cover coordinate/scale transforms, modality isolation, gradient flow,
-episode padding, train-only statistics, checkpoint round trips, deployment
-normalization and action queues. Cache manifests record source and model hashes,
-episode splits and per-frame geometry diagnostics. Git tracks source/configuration
-and the LeRobot submodule; weights, datasets, caches and outputs stay out of Git.
+Please cite this repository via [CITATION.cff](CITATION.cff) and credit upstream
+[VGGT](https://github.com/facebookresearch/vggt) and
+[LeRobot](https://github.com/huggingface/lerobot) separately. Third-party source,
+weights and historical robot/data assets retain their own terms;
+see [third-party notes](docs/third_party.md).
